@@ -1,0 +1,203 @@
+/* 1. Global Variables & Setup */
+:root {
+    --cream: #F8F8FF;
+    --dark-green: #1D312E;
+    --logo-green: #4a6344;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--cream);
+    color: var(--dark-green);
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* 2. Global Element Styles */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+p {
+    line-height: 1.6;
+}
+
+/* 3. Reusable Components (Buttons) */
+.btn, .page {
+    text-decoration: none;
+    padding: 8px 16px;
+    margin: 5px;
+    border-radius: 4px;
+    border: 1px solid var(--dark-green);
+    display: inline-block;
+    transition: 0.3s;
+}
+
+.btn { color: var(--dark-green); }
+
+.page {
+    color: white;
+    background-color: var(--dark-green);
+}
+
+/* 4. Home Page Layout (Desktop) */
+.split-screen {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.left-pane, .right-pane {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+.left-pane {
+    flex: 1.2;
+    padding: 40px;
+    flex-direction: column;
+    background-color: var(--cream);
+}
+
+.right-pane {
+    flex: 0.8;
+    background-color: var(--dark-green);
+}
+
+/* Added the missing dot for the class selector */
+.logo-main {
+    max-width: 80%;
+    max-height: 30vh;
+    width: auto;
+    margin-bottom: 20px;
+    object-fit: contain;
+}
+
+img[src="shirakawago.svg"] {
+    max-width: 90%;
+    max-height: 45vh;
+    width: auto;
+}
+
+nav.main-nav a {
+    display: block;
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 300px;
+    transition: 0.3s;
+}
+
+nav.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* 5. Content & Profile Sections */
+.content-page {
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.profile-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.logo-small {
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.profile-body p {
+    max-width: 90%;
+    margin: 0 auto 15px;
+    text-align: center;
+}
+
+/* Typography Simplification */
+.vision, .mission, [class^="detail_service"] {
+    font-style: italic;
+    font-weight: 500;
+}
+
+.core, .other {
+    color: var(--logo-green);
+    text-decoration: underline;
+}
+
+[class^="service"] {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* 6. Contact & Links */
+.contact-info a {
+    color: var(--dark-green);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.contact-info a:hover { text-decoration: underline; }
+
+/* 7. Unified Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* Home page specifically set to not scroll */
+    #home.split-screen {
+        flex-direction: column;
+        height: 100vh; 
+        justify-content: space-around;
+        overflow: hidden;
+    }
+
+    /* Allow other pages to scroll naturally */
+    .content-page {
+        height: auto;
+        padding: 20px 10px;
+    }
+
+    .left-pane, .right-pane {
+        width: 100%;
+        padding: 15px;
+        flex: none;
+    }
+
+    .logo-main {
+        max-width: 150px;
+        margin-bottom: 10px;
+    }
+
+    img[src="shirakawago.svg"] {
+        max-width: 180px;
+    }
+
+    nav.main-nav a {
+        padding: 12px;
+        font-size: 1.1rem;
+    }
+
+    .nav-header nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+}
