@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% if is_react_app %}React App | {% endif %}Arch-notions{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=0.1.2">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    {% if request.user.is_authenticated %}
+    <nav id="adminTopBar" class="admin-top-bar">
+        <span class="user-info"><span class="admin-label">Logged in as:</span> <strong title="{{ request.user.username }}">{{ request.user.username }}</strong></span>
+        {% if request.user.is_superuser %}
+            <div class="admin-dropdown" id="adminDropdown">
+                <div class="admin-drop-btn" id="adminDropBtn" role="button" aria-haspopup="true" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="admin-dropdown-content">
+                    <a href="{% url 'logout' %}" style="color: #d9534f !important; font-weight: bold;">Logout</a>
+                    <a href="{% url 'manage_users' %}">Manage Users</a>
+                    <a href="{% url 'upload_article' %}">Upload Article</a>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    const btn = document.getElementById('adminDropBtn');
+                    const dropdown = document.getElementById('adminDropdown');
+                    
+                    if (btn && dropdown) {
+                        // Use click for both button and document for mobile reliability
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation(); 
+                            dropdown.classList.toggle('show');
+                        });
+ 
+                        document.addEventListener('click', function(e) {
+                            if (!dropdown.contains(e.target)) {
+                                dropdown.classList.remove('show');
+                            }
+                        });
+                    }
+                })();
+            </script>
+        {% else %}
+            <a href="{% url 'logout' %}" class="admin-logout-link">Logout</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% block content %}
+    {% if is_react_app %}
+    <div id="root"></div>
+    <script defer src="{% static 'react/main.js' %}"></script>
+    {% endif %}
+    {% endblock %}
+
+    <script>
+    (function() {
+        var spacePage = document.querySelector('#profile.content-page, #services.content-page, #articles.content-page, #features.content-page, #login.content-page');
+        if (!spacePage) return;
+
+        var bars = document.querySelectorAll('#adminDropBtn span');
+        bars.forEach(function(bar) { bar.style.backgroundColor = '#F8F8FF'; });
+
+        var logoutLink = document.querySelector('.admin-logout-link');
+        if (logoutLink) logoutLink.style.color = '#F8F8FF';
+
+        var userInfo = document.querySelector('.user-info');
+        if (userInfo) userInfo.style.color = '#F8F8FF';
+
+        var canvas = document.createElement('canvas');
+        canvas.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none';
+        document.body.prepend(canvas);
+        var ctx = canvas.getContext('2d');
+
+        var numStars = 400;
+        var stars = Array.from({ length: numStars }, function () {
+            return {
+                x: Math.random(),
+                y: Math.random(),
+                r: Math.random() * 1.4 + 0.3,
+                phase: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.025 + 0.01,
+                baseAlpha: 0.3 + Math.random() * 0.5,
+            };
+        });
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#05050a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+ 
+            stars.forEach(function (s) {
+                s.phase += s.speed;
+                var twinkle = (Math.sin(s.phase) + 1) / 2; // 0..1
+                var alpha = (s.baseAlpha * (0.4 + twinkle * 0.6)).toFixed(3);
+ 
+                ctx.beginPath();
+                ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+                ctx.fill();
+            });
+ 
+            requestAnimationFrame(draw);
+        }
+ 
+        resize();
+        draw();
+        window.addEventListener('resize', resize);
+    })();
+    </script>
+
+</body>
+</html>

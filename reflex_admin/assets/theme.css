@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #0B1220;
+  --panel: #121B2B;
+  --panel-2: #17233A;
+  --line: #2C4257;
+  --brass: #C9A227;
+  --brass-dim: #8C721C;
+  --paper: #ECE8DD;
+  --muted: #7E8FA3;
+  --go: #4F9D77;
+  --stop: #C1666B;
+}
+
+body {
+  background-color: var(--ink);
+  background-image:
+    linear-gradient(rgba(44, 66, 87, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44, 66, 87, 0.10) 1px, transparent 1px);
+  background-size: 32px 32px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* Corner-bracket frame: registration marks like an architectural drawing */
+.blueprint-frame {
+  position: relative;
+}
+.blueprint-frame::before,
+.blueprint-frame::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--brass);
+  border-style: solid;
+  pointer-events: none;
+}
+.blueprint-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.blueprint-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.data-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}

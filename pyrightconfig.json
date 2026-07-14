@@ -1,0 +1,5 @@
+{
+    "venvPath": ".",
+    "venv": ".venv",
+    "djangoSettings": "arch_notions.settings"
+}

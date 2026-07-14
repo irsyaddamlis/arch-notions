@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Articles | Arch-notions{% endblock %}
+
+{% block content %}
+<section id="articles" class="content-page">
+    <header class="nav-header">
+        <nav>
+            <a href="{% url 'home' %}" class="btn">Home</a>
+            <a href="{% url 'profile' %}" class="btn">About</a>
+            <a href="{% url 'services' %}" class="btn">Services</a>
+            <a class="page">Articles</a>
+            <a href="{% url 'features' %}" class="btn">Features</a>
+        </nav>
+        <div class="profile-logo-container reveal">
+            <img src="{% static 'arch-notions-logo.png' %}">
+        </div>
+    </header>
+
+    <section>
+        <article class="articles-body">
+
+            <div class="reveal">
+                <h2 class="articles-title">Articles</h2>
+                <p class="articles-sub">Research & insights from Arch-notions</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="auth-message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            {% if request.user.is_superuser or request.user.userprofile.is_approved %}
+
+            <div class="articles-list reveal">
+                {% for article in articles %}
+                <div class="article-row">
+                    <div class="article-row-left">
+                        <span class="article-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                        <div class="article-info">
+                            <span class="article-date">{{ article.date|date:"d M Y" }}</span>
+                            {% if request.user.is_superuser or request.user.userprofile.can_view_all %}
+                                <a href="#" class="article-title-link" onclick="viewArticle('{{ article.file.url }}'); return false;">{{ article.title }}</a>
+                            {% else %}
+                                <span class="article-title-locked">{{ article.title }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="article-row-right">
+                        <span class="article-type-badge">{{ article.file_type|upper }}</span>
+                        {% if request.user.is_superuser or request.user.userprofile.can_download_all %}
+                            <a href="{{ article.file.url }}" target="_blank" class="article-download-btn" title="Download">↓ Download</a>
+                        {% else %}
+                            <span class="article-no-permission">No access</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="articles-empty">
+                    <p>No articles published yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="pdf-viewer-container" style="display:none;" class="reveal">
+                <div class="pdf-controls">
+                    <button onclick="prevPage()" class="btn">← Prev</button>
+                    <span class="pdf-page-info">Page <span id="page-num"></span> / <span id="page-count"></span></span>
+                    <button onclick="nextPage()" class="btn">Next →</button>
+                    <button onclick="closePdf()" class="btn" style="margin-left:auto;">✕ Close</button>
+                </div>
+                <canvas id="pdf-canvas" style="border: 1px solid var(--dark-green); width: 100%; border-radius: 8px;"></canvas>
+            </div>
+
+            {% endif %}
+
+        </article>
+    </section>
+</section>
+
+<script type="module">
+import * as pdfjsLib from "{% static 'pdfjs/pdf.mjs' %}?v=1";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'pdfjs/pdf.worker.mjs' %}?v=1";
+
+let pdfDoc = null;
+let pageNum = 1;
+let canvas = document.getElementById('pdf-canvas');
+let ctx = canvas.getContext('2d');
+
+function renderPage(num) {
+    pdfDoc.getPage(num).then(function(page) {
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        page.render({ canvasContext: ctx, viewport: viewport });
+        document.getElementById('page-num').textContent = num;
+    });
+}
+
+window.viewArticle = function(fileUrl) {
+    const container = document.getElementById('pdf-viewer-container');
+    container.style.display = 'block';
+    container.scrollIntoView({ behavior: 'smooth' });
+    pdfjsLib.getDocument({ url: fileUrl }).promise.then(function(pdf) {
+        pdfDoc = pdf;
+        document.getElementById('page-count').textContent = pdf.numPages;
+        pageNum = 1;
+        renderPage(pageNum);
+    });
+}
+
+window.prevPage = function() {
+    if (pageNum <= 1) return;
+    pageNum--;
+    renderPage(pageNum);
+}
+
+window.nextPage = function() {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    renderPage(pageNum);
+}
+
+window.closePdf = function() {
+    document.getElementById('pdf-viewer-container').style.display = 'none';
+}
+</script>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            entry.target.style.animationDelay = (i * 80) + 'ms';
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+reveals.forEach(el => io.observe(el));
+</script>
+{% endblock %}

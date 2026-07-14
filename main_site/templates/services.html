@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Services | Arch-notions{% endblock %}
+
+{% block content %}
+<section id="services" class="content-page">
+    <header class="nav-header">
+        <nav>
+            <a href="{% url 'home' %}" class="btn">Home</a>
+            <a href="{% url 'profile' %}" class="btn">About</a>
+            <a class="page">Services</a>
+            <a href="{% url 'articles' %}" class="btn">Articles</a>
+            <a href="{% url 'features' %}" class="btn">Features</a>
+        </nav>
+        <div class="profile-logo-container reveal">
+            <img src="{% static 'arch-notions-logo.png' %}">
+        </div>
+    </header>
+
+    <section>
+        <article class="services-body">
+
+            <div class="reveal">
+                <h2 class="services-section-title core">Core Services</h2>
+                <p class="services-section-sub">What we do best</p>
+            </div>
+
+            <div class="services-grid">
+                {% for service in core_services %}
+                <div class="service-card reveal">
+                    <span class="service-number">0{{ forloop.counter }}</span>
+                    <h4 class="service-card-title">{{ service.name }}</h4>
+                    <p class="service-card-detail">{{ service.detail }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="services-divider reveal">
+
+            <div class="reveal">
+                <h2 class="services-section-title other">Other Services</h2>
+                <p class="services-section-sub">Specialized capabilities</p>
+            </div>
+
+            <div class="services-grid">
+                {% for service in other_services %}
+                <div class="service-card reveal">
+                    <span class="service-number">0{{ forloop.counter }}</span>
+                    <h4 class="service-card-title">{{ service.name }}</h4>
+                    <p class="service-card-detail">{{ service.detail }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+        </article>
+    </section>
+</section>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            entry.target.style.animationDelay = (i * 80) + 'ms';
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+reveals.forEach(el => io.observe(el));
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "sshOptions": {
+                "port": 22
+            },
+            "driver": "PostgreSQL",
+            "name": "irsyaddamlis",
+            "database": "irsyaddamlis",
+            "username": "irsyaddamlis",
+            "password": ""
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Arch-notions Dev",
+            "database": "my_django_db",
+            "username": "postgres",
+            "password": ""
+        }
+    ]
+}

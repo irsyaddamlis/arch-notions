@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About | Arch-notions{% endblock %}
+
+{% block content %}
+<section id="profile" class="content-page">
+    <header class="nav-header">
+        <nav>
+            <a href="{% url 'home' %}" class="btn">Home</a>
+            <a class="page">About</a>
+            <a href="{% url 'services' %}" class="btn">Services</a>
+            <a href="{% url 'articles' %}" class="btn">Articles</a>
+            <a href="{% url 'features' %}" class="btn">Features</a>
+        </nav>
+
+        <div class="profile-logo-container reveal">
+            <img src="{% static 'arch-notions-logo.png' %}">
+        </div>
+
+        <div class="stats-row reveal">
+            <div class="stat-card">
+                <p class="stat-number">LEGAL NAME</p>
+                <p class="stat-label">PT ARAH NYATA SOLUSI</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-number">FOUNDED</p>
+                <p class="stat-label">2026</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-number">BASE</p>
+                <p class="stat-label">INDONESIA</p>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <article class="profile-body">
+            <header class="founder-section reveal">
+                <div class="circle-container reveal">
+                    <img src="{% static 'irsyad.png' %}">
+                </div>
+                <p>The Founder</p>
+                <h1 class="founder">Irsyad Damlis</h1>
+            </header>
+
+            <p class="bio reveal mb-4" >
+                With over {{ years }} years of experience in project management, digital transformation,
+                strategy analytics, business development, and operational excellence,
+                we specialize in bridging the gap between complex data and actionable business growth.
+            </p>
+
+            <!-- 1. SPLIT VALUES SECTION -->
+            <div class="split-row values-section">
+                <div class="split-left reveal">
+                    <h3 class="vision-subject">Vision</h3>
+                </div>
+                <div class="split-right reveal">
+                    <div class="reveal">
+                        <blockquote class="quote-block">"To make entrepreneurs' dreams come to reality."</blockquote>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="split-row values-section">
+                <div class="split-left reveal">
+                    <h3 class="vision-subject">Mission</h3>
+                </div>
+                <div class="split-right reveal">
+                    <div class="reveal">
+                        <blockquote class="quote-block">"Providing the direction and the real solutions businesses need to thrive in a competitive landscape."</blockquote>
+                    </div>
+                </div>
+            </div>
+
+        </article>
+    </section>
+
+    <hr class="services-divider reveal">
+    
+    <section>
+        <article class="services-body">
+
+            <!-- 2. SPLIT CORE SERVICES SECTION -->
+            <div class="split-row">
+                <div class="split-left reveal">
+                    <h2 class="services-section-title core">Core Services</h2>
+                    <p class="services-section-sub">What we do best</p>
+                </div>
+                
+                <div class="split-right">
+                    <div class="services-grid">
+                        {% for profile in core_services %}
+                        <div class="service-card reveal">
+                            <span class="service-number">0{{ forloop.counter }}</span>
+                            <h4 class="service-card-title">{{ profile.name }}</h4>
+                            <p class="service-card-detail">{{ profile.detail }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <hr class="services-divider reveal">
+
+            <!-- 3. SPLIT OTHER SERVICES SECTION -->
+            <div class="split-row">
+                <div class="split-left reveal">
+                    <h2 class="services-section-title other">Other Services</h2>
+                    <p class="services-section-sub">Specialized capabilities</p>
+                </div>
+                
+                <div class="split-right">
+                    <div class="services-grid">
+                        {% for profile in other_services %}
+                        <div class="service-card reveal">
+                            <span class="service-number">0{{ forloop.counter }}</span>
+                            <h4 class="service-card-title">{{ profile.name }}</h4>
+                            <p class="service-card-detail">{{ profile.detail }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </article>
+    </section>
+
+</section>
+
+<!-- CSS Styles required for the split layout -->
+<style>
+.split-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.split-left {
+    flex: 1 1 300px; /* Takes up the left side */
+    max-width: 350px;
+}
+
+.split-right {
+    flex: 2 1 500px; /* Takes up the remaining right side */
+}
+
+.mb-4 {
+    margin-bottom: 4rem !important;
+}
+
+/* Keeps your existing grid functioning inside the right column */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Responsive adjustment for small mobile screens */
+@media (max-width: 768px) {
+    
+    /* 1. Adjust Split Rows for Mobile */
+    .split-row {
+        flex-direction: column; /* Stack left column on top of right column */
+        gap: 0.05rem;              /* Tighter spacing between title and content */
+        margin-bottom: 0.05rem;  /* Slightly less margin between sections */
+    }
+
+    .split-left {
+        max-width: 100%;        
+        flex: 0 1 auto;        /* Allow titles to span the full width */
+    }
+    .split-right {
+    flex: 0 1 auto;
+    }
+}
+</style>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationDelay = (i * 100) + 'ms';
+      entry.target.classList.add('visible');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+reveals.forEach(el => io.observe(el));
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register | Arch-notions{% endblock %}
+
+{% block content %}
+<section id="register" class="content-page">
+    <div class="auth-container">
+        <img src="{% static 'arch-notions-logo.png' %}" class="logo-small">
+        <h2>Register</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="auth-message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-form">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="password2" placeholder="Confirm Password" required>
+            <button type="button" onclick="handleRegister()">Register</button>
+        </div>
+
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
+</section>
+
+<script>
+function handleRegister() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "register" %}';
+    
+    const fields = ['username', 'email', 'password', 'password2'];
+    
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+    form.appendChild(csrf);
+    
+    fields.forEach(name => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = document.querySelector(`input[name="${name}"]`).value;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

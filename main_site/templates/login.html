@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login | Arch-notions{% endblock %}
+
+{% block content %}
+<section id="login" class="content-page">
+    <div class="auth-container">
+        <img src="{% static 'arch-notions-logo.png' %}" class="logo-small">
+        <h2 class="auth-title">Member Login</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="auth-message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-form">
+            <input type="text" name="username" placeholder="Enter Username" required>
+            <input type="password" name="password" placeholder="Enter Password" required>
+
+            <div class="auth-bottom">
+                <button type="button" onclick="handleLogin()">Login</button>
+                <div class="auth-links">
+                    </a>
+                    <a href="{% url 'password_reset' %}"> Forgot password?
+                    </a>
+                    </div>
+            </div>
+        </div>
+
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+        <a href="{% url 'home' %}">Back to Home</a>
+    </div>
+</section>
+
+<script>
+function handleLogin() {
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "login" %}';
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+
+    const user = document.createElement('input');
+    user.type = 'hidden';
+    user.name = 'username';
+    user.value = username;
+
+    const pass = document.createElement('input');
+    pass.type = 'hidden';
+    pass.name = 'password';
+    pass.value = password;
+
+    const next = document.createElement('input');
+    next.type = 'hidden';
+    next.name = 'next';
+    next.value = '{{ next }}';
+
+    form.appendChild(csrf);
+    form.appendChild(next);
+    form.appendChild(user);
+    form.appendChild(pass);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}
