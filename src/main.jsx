@@ -8,7 +8,7 @@ const MENU_ITEMS = [
   { label: "About",    href: "/profile/" },
   { label: "Services", href: "/services/" },
   { label: "Articles", href: "/articles/" },
-  { label: "Features", href: "/features" },
+  { label: "Features", href: "/features/" },
 ];
 
 const CONTACT = {

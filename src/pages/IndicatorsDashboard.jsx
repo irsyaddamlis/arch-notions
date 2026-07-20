@@ -50,11 +50,10 @@ export default function IndicatorsDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0A0E17] px-8 py-10">
+    <div className="min-h-screen bg-[#0A0E17] px-15 py-20">
       <header className="mb-10">
-        <ArchNotionsLogo className="mb-4" />
-        <h1 className="text-4xl font-bold text-white">Indicators</h1>
-        <p className="text-gray-400 mt-1">Indonesia Economic Outlook</p>
+        <ArchNotionsLogo className="mb-1 w-64" />
+        <h1 className="text-2xl font-bold text-white">Indonesia's Economic Outlook</h1>
       </header>
 
       {error && (
@@ -66,46 +65,43 @@ export default function IndicatorsDashboard() {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         <StatCard
           variant="highlight"
-          label="Indonesia Debt"
+          label="Indonesia's Debt"
           value={indicators.id_debt ?? "\u2014"}
-          footnote="+12% from last month"
           icon={<Wallet size={18} />}
         />
         <StatCard
           label="Broad Money"
           value={indicators.broad_money ?? "\u2014"}
-          footnote="+8% growth"
           icon={<PackageOpen size={18} />}
         />
         <StatCard
           label="Oil Price"
           value={indicators.oil_price ?? "\u2014"}
-          footnote="+5% this week"
           icon={<Droplet size={18} />}
         />
         <StatCard
           label="GDP Growth"
           value={indicators.gdp ?? "\u2014"}
-          footnote="+1.2% increase"
           icon={<TrendingUp size={18} />}
         />
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-[2fr_auto_1fr] gap-8 items-start">
+      <section className="grid grid-cols-1 lg:grid-cols-[2fr_auto_1fr] gap-3 items-start">
         <TrendChart data={trend} />
 
-        <div className="flex items-center justify-center">
-          <IhsgBadge value={indicators.ihsg ?? "\u2014"} />
+        <div className="flex flex-col gap-3 p-5">
+          <CurrencyList data={indicators} />
         </div>
 
-        <div className="flex flex-col gap-8">
-          <CurrencyList data={indicators} />
+        <div className="flex items-center justify-center gap-3">
+          <IhsgBadge value={indicators.ihsg ?? "\u2014"} />
+          
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-            <RateBadge label="BI Rate" value={indicators.bi_rate ?? "\u2014"} />
-            <RateBadge label="Deposit" value={indicators.deposit_rate ?? "\u2014"} />
-            <RateBadge label="Lending Rate" value={indicators.lending_rate ?? "\u2014"} />
-            <RateBadge label="Loan Rate" value={indicators.loan_rate ?? "\u2014"} />
+          <div className="grid grid-cols-2 gap-x-6 gap-y-6 p-5">
+            <RateBadge label="SBI Rate" value={indicators.bi_rate ?? "\u2014"} />
+            <RateBadge label="Save Deposit" value={indicators.deposit_rate ?? "\u2014"} />
+            <RateBadge label="Productive Loan" value={indicators.lending_rate ?? "\u2014"} />
+            <RateBadge label="Consumptive Loan" value={indicators.loan_rate ?? "\u2014"} />
           </div>
         </div>
       </section>

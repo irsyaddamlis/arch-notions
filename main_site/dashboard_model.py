@@ -283,7 +283,7 @@ def broad_money():
         for label in ("Broad Money (M2)", "Uang Beredar Luas(M2)"):
             value = _extract_last_number(full_text, label)
             if value is not None:
-                return _fmt(value, suffix=" billion")
+                return _fmt(value/1000, suffix=" trillion")
         return "N/A"
     except Exception:
         return "N/A"
@@ -294,7 +294,7 @@ def lending_rate():
     try:
         full_text = fetch_bi(BILOAN_URL)
         rate = _extract_first_line(full_text, "Pinjaman Modal Kerja Yang Diberikan")
-        return _fmt(rate, suffix="%") if rate is not None else "N/A"
+        return _fmt(rate/10, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
 
@@ -304,7 +304,7 @@ def loan_rate():
     try:
         full_text = fetch_bi(BILOAN_URL)
         rate = _extract_first_line(full_text, "Pinjaman Konsumsi Yang Diberikan")
-        return _fmt(rate, suffix="%") if rate is not None else "N/A"
+        return _fmt(rate/10, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
 
@@ -316,7 +316,7 @@ def deposit_rate():
         # that's clearly the intent. See the NOTE near the URL constants.
         full_text = fetch_bi(BIDEPOSIT_URL)
         rate = _extract_first_line(full_text, "1 Bulan")
-        return _fmt(rate, suffix="%") if rate is not None else "N/A"
+        return _fmt(rate/10, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
 
@@ -324,21 +324,33 @@ def deposit_rate():
 def _sulni_url_for(dt):
     month_name = format_date(dt, "MMMM", locale="id_ID")
     return f"https://www.bi.go.id/en/statistik/ekonomi-keuangan/sulni/Documents/SULNI-{month_name}-{dt.year}.pdf"
-
-
+ 
+ 
 # 16. Indonesian External Debt
 def id_debt():
-    # SULNI reports are published with a lag, so the current month's PDF
-    # often doesn't exist yet - fall back to the previous month if so.
-    label = "TOTAL (142)"
     candidates = [datetime.today(), datetime.today().replace(day=1) - timedelta(days=1)]
+    labels = [
+        "TOTAL (142)","TOTAL(142)","TOTAL ( 142 )"
+    ]
     for dt in candidates:
         url = _sulni_url_for(dt)
         try:
             full_text = fetch_bi_img(url)
-            debt = _extract_last_number(full_text, label)
-            if debt is not None:
-                return _fmt(debt, prefix="$", suffix=" million")
+            for label in labels:
+                lines = [
+                    line for line in full_text.splitlines()
+                    if label.replace(" ", "") in line.replace(" ", "")
+                ]
+                if not lines:
+                    continue
+                line = lines[-1]
+                numbers = re.findall(r'[\d.,]+', line)
+                if not numbers:
+                    continue
+                value = numbers[-1]
+                # convert OCR number into float
+                value = value.replace(",", "")
+                return f"${float(value)/1000:,.2f} billion"
         except Exception:
             continue
     return "N/A"
@@ -381,7 +393,7 @@ def trend():
         currency_hist = yf.Ticker("USDIDR=X").history(start=start_date_str, end=end_date_str)
         if not currency_hist.empty:
             currency_hist = currency_hist.reset_index()
-            currency_hist['Date'] = currency_hist['Date'].dt.strftime('%Y-%m-%d')
+            currency_hist['Date'] = currency_hist['Date'].dt.strftime('%b-%d')
             currency_df = currency_hist[['Date', 'Close']].rename(columns={'Close': '$-Exchange'})
             currency_df['$-Exchange'] = currency_df['$-Exchange'].round(2)
         else:
@@ -393,7 +405,7 @@ def trend():
         ihsg_hist = yf.Ticker("^JKSE").history(start=start_date_str, end=end_date_str)
         if not ihsg_hist.empty:
             ihsg_hist = ihsg_hist.reset_index()
-            ihsg_hist['Date'] = ihsg_hist['Date'].dt.strftime('%Y-%m-%d')
+            ihsg_hist['Date'] = ihsg_hist['Date'].dt.strftime('%b-%d')
             ihsg_clean = ihsg_hist[['Date', 'Close']].rename(columns={'Close': 'IHSG'})
         else:
             ihsg_clean = pd.DataFrame(columns=['Date', 'IHSG'])
@@ -404,7 +416,7 @@ def trend():
         return pd.DataFrame(columns=['Date', '$-Exchange', 'IHSG'])
 
     master_dates = pd.date_range(start=one_month_ago, end=today)
-    final_df = pd.DataFrame({'Date': master_dates.strftime('%Y-%m-%d')})
+    final_df = pd.DataFrame({'Date': master_dates.strftime('%b-%d')})
     final_df = pd.merge(final_df, currency_df, on='Date', how='left')
     final_df = pd.merge(final_df, ihsg_clean, on='Date', how='left')
 
