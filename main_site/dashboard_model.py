@@ -260,11 +260,21 @@ def _extract_last_number(full_text, label):
     if not lines:
         return None
     target_line = lines[-1]
-    data_portion = target_line.split(label)[-1]
+    data_portion = target_line.split(label)[0]
     numbers = re.findall(r'[\d,]+', data_portion)
     values = [int(n.replace(',', '')) for n in numbers if n.replace(',', '').isdigit()]
     return values[-1] if values else None
 
+def _extract_first_line(full_text, label):
+    """Shared helper: find the line containing `label` and pull the last number off it."""
+    lines = [line for line in full_text.splitlines() if label in line]
+    if not lines:
+        return None
+    target_line = lines[0]
+    data_portion = target_line.split(label)[1]
+    numbers = re.findall(r'[\d,]+', data_portion)
+    values = [int(n.replace(',', '')) for n in numbers if n.replace(',', '').isdigit()]
+    return values[-1] if values else None
 
 # 12. Broad Money (M2)
 def broad_money():
@@ -283,7 +293,7 @@ def broad_money():
 def lending_rate():
     try:
         full_text = fetch_bi(BILOAN_URL)
-        rate = _extract_last_number(full_text, "Pinjaman Modal Kerja Yang Diberikan")
+        rate = _extract_first_line(full_text, "Pinjaman Modal Kerja Yang Diberikan")
         return _fmt(rate, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
@@ -293,7 +303,7 @@ def lending_rate():
 def loan_rate():
     try:
         full_text = fetch_bi(BILOAN_URL)
-        rate = _extract_last_number(full_text, "Pinjaman Konsumsi Yang Diberikan")
+        rate = _extract_first_line(full_text, "Pinjaman Konsumsi Yang Diberikan")
         return _fmt(rate, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
@@ -305,7 +315,7 @@ def deposit_rate():
         # Was reading BILOAN_URL before - switched to BIDEPOSIT_URL since
         # that's clearly the intent. See the NOTE near the URL constants.
         full_text = fetch_bi(BIDEPOSIT_URL)
-        rate = _extract_last_number(full_text, "1 Bulan")
+        rate = _extract_first_line(full_text, "1 Bulan")
         return _fmt(rate, suffix="%") if rate is not None else "N/A"
     except Exception:
         return "N/A"
