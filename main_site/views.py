@@ -180,3 +180,7 @@ def react_app(request):
     # Fetch users with their profiles for display
 #    users = User.objects.filter(is_superuser=False).select_related('userprofile')
 #    return render(request, 'manage_users.html', {'users': users})
+
+
+def indicators_view(request):
+    return render(request, "indicators.html")

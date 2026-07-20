@@ -1,0 +1,58 @@
+# Dashboard refresh schedule for Arch-notions
+#
+# IMPORTANT: cron on your EC2 instance almost certainly runs in UTC by
+# default, not WIB (Asia/Jakarta, UTC+7). Pick ONE of the two blocks below
+# depending on how your server is configured. Check with: timedatectl
+#
+# Replace /path/to/project and /path/to/venv with your actual paths, e.g.:
+#   /home/ubuntu/arch-notions  and  /home/ubuntu/arch-notions/venv/bin/python
+#
+# All commands assume `manage.py` is in /path/to/project.
+
+# =========================================
+# OPTION A - Server timezone IS Asia/Jakarta
+# (settings.py has TIME_ZONE = "Asia/Jakarta" and OS timezone matches)
+# =========================================
+
+# Market data (currencies + IHSG): hourly, 9am-3pm WIB, weekdays only
+0 9-15 * * 1-5 cd /path/to/project && /path/to/venv/bin/python manage.py refresh_market_hourly >> /var/log/dashboard_cron.log 2>&1
+
+# BI Rate: weekly, Monday 9am WIB
+0 9 * * 1 cd /path/to/project && /path/to/venv/bin/python manage.py refresh_bi_rate_weekly >> /var/log/dashboard_cron.log 2>&1
+
+# Monthly mid-month group: oil, lending/loan/deposit rates, broad money, CPI
+0 9 15 * * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_monthly_mid >> /var/log/dashboard_cron.log 2>&1
+
+# Indonesian external debt: quarterly, mid-month
+# NOTE: confirm actual SULNI release months with BI - Jan/Apr/Jul/Oct assumed below
+0 9 15 1,4,7,10 * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_id_debt_quarterly >> /var/log/dashboard_cron.log 2>&1
+
+# GDP: try each month Apr-Jun (skips saving if not yet released)
+0 9 15 4,5,6 * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_gdp >> /var/log/dashboard_cron.log 2>&1
+
+
+# =========================================
+# OPTION B - Server timezone is UTC (default on most EC2 images)
+# WIB is UTC+7, so 9am-3pm WIB = 2am-8am UTC
+# =========================================
+
+# Market data (currencies + IHSG): hourly, 2am-8am UTC, weekdays only
+0 2-8 * * 1-5 cd /path/to/project && /path/to/venv/bin/python manage.py refresh_market_hourly >> /var/log/dashboard_cron.log 2>&1
+
+# BI Rate: weekly, Monday 2am UTC (= Monday 9am WIB)
+0 2 * * 1 cd /path/to/project && /path/to/venv/bin/python manage.py refresh_bi_rate_weekly >> /var/log/dashboard_cron.log 2>&1
+
+# Monthly mid-month group
+0 2 15 * * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_monthly_mid >> /var/log/dashboard_cron.log 2>&1
+
+# Indonesian external debt: quarterly, mid-month
+0 2 15 1,4,7,10 * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_id_debt_quarterly >> /var/log/dashboard_cron.log 2>&1
+
+# GDP: try each month Apr-Jun
+0 2 15 4,5,6 * cd /path/to/project && /path/to/venv/bin/python manage.py refresh_gdp >> /var/log/dashboard_cron.log 2>&1
+
+
+# To install: crontab -e, paste the block matching your server's timezone,
+# save and exit. Verify with: crontab -l
+# Make sure /var/log/dashboard_cron.log is writable by the cron user
+# (sudo touch /var/log/dashboard_cron.log && sudo chown $USER /var/log/dashboard_cron.log)

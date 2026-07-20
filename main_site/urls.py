@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect  # type: ignore
 from django.urls import include, path  # type: ignore
 
 from . import views
+from .views import indicators_view
 
 # Admin panel is now Reflex, not Flet. Reflex's frontend serves the pages
 # themselves (backend_port 8560 is only for the websocket/state channel,
@@ -72,4 +73,5 @@ urlpatterns = [
         lambda request: redirect_to_flet_reset('password-reset-complete/'),
         name='password_reset_complete',
     ),
+    path("indicators/", indicators_view, name="indicators_page"),
 ]

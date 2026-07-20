@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Article, UserProfile
+from .models import Article, IndicatorSnapshot, TrendSnapshot, UserProfile
 
 
 @api_view(['GET'])
@@ -68,12 +68,12 @@ def articles(request):
     for a in qs:
         items.append(
             {
-                'id': a.id,
+                'id': a.id, # type: ignore
                 'title': a.title,
                 'date': a.date.isoformat(),
                 'file_type': a.file_type,
                 'file_url': request.build_absolute_uri(a.file.url),
-                'is_downloadable': a.is_downloadable or (not request.user.is_superuser and profile.can_download_all),
+                'is_downloadable': a.is_downloadable or (not request.user.is_superuser and profile.can_download_all), # type: ignore
             }
         )
 
@@ -92,12 +92,12 @@ def manage_users(request):
     for u in users:
         payload.append(
             {
-                'id': u.id,
+                'id': u.id, # type: ignore
                 'username': u.username,
                 'email': u.email,
-                'is_approved': u.userprofile.is_approved,
-                'can_view_all': u.userprofile.can_view_all,
-                'can_download_all': u.userprofile.can_download_all,
+                'is_approved': u.userprofile.is_approved, # type: ignore
+                'can_view_all': u.userprofile.can_view_all, # type: ignore
+                'can_download_all': u.userprofile.can_download_all, # type: ignore
             }
         )
     return Response({'results': payload})
@@ -269,3 +269,28 @@ def delete_article(request):
     article.delete()
 
     return Response({'ok': True})
+
+
+class IndicatorsView(APIView):
+    """
+    GET /api/indicators/
+    Returns a flat object: { "id_debt": "...", "usd_idr": "...", ... }
+    """
+ 
+    def get(self, request):
+        rows = IndicatorSnapshot.objects.all()
+        data = {row.key: row.value for row in rows}
+        return Response(data)
+ 
+ 
+class TrendView(APIView):
+    """
+    GET /api/trend/
+    Returns the stored trend series as a plain array:
+    [{ "date": "...", "ihsg": ..., "exchange": ... }, ...]
+    """
+ 
+    def get(self, request):
+        snapshot = TrendSnapshot.objects.first()
+        data = snapshot.data if snapshot else []
+        return Response(data)

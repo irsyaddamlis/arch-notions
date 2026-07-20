@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import api_views
+from .api_views import IndicatorsView, TrendView
 
 urlpatterns = [
     path('me/', api_views.me, name='api_me'),
@@ -13,4 +14,6 @@ urlpatterns = [
 
     path('password-reset-request/', api_views.password_reset_request, name='api_password_reset_request'),
     path('password-reset-confirm/', api_views.password_reset_confirm, name='api_password_reset_confirm'),
+    path("indicators/", IndicatorsView.as_view(), name="indicators"),
+    path("trend/", TrendView.as_view(), name="trend"),
 ]
