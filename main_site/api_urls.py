@@ -14,6 +14,6 @@ urlpatterns = [
 
     path('password-reset-request/', api_views.password_reset_request, name='api_password_reset_request'),
     path('password-reset-confirm/', api_views.password_reset_confirm, name='api_password_reset_confirm'),
-    path("indicators/", IndicatorsView.as_view(), name="indicators"),
+    path("indicators/", IndicatorsView.as_view(), name="api_indicators"),
     path("trend/", TrendView.as_view(), name="trend"),
 ]

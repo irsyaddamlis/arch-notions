@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ArchNotionsLogo from "../components/dashboard/ArchNotionsLogo";
 import CurrencyList from "../components/dashboard/CurrencyList";
 import IhsgBadge from "../components/dashboard/IhsgBadge";
+import NavBar from "../components/dashboard/NavBar";
 import RateBadge from "../components/dashboard/RateBadge";
 import StatCard from "../components/dashboard/StatCard";
 import TrendChart from "../components/dashboard/TrendChart";
@@ -51,10 +52,15 @@ export default function IndicatorsDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0E17] px-15 py-20">
-      <header className="mb-10">
-        <ArchNotionsLogo className="mb-1 w-64" />
+      <div className="flex items-start justify-between mb-10">
+        <header className="mb-10">
+          <a href="/" className="inline-block">
+          <ArchNotionsLogo className="mb-1 w-128" />
+          </a>
         <h1 className="text-2xl font-bold text-white">Indonesia's Economic Outlook</h1>
-      </header>
+        </header>
+        <NavBar current="Outlook" />
+      </div>
 
       {error && (
         <div className="mb-6 rounded-lg bg-red-950 text-red-300 text-sm px-4 py-3">

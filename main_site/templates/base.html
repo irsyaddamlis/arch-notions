@@ -57,7 +57,7 @@
     {% block content %}
     {% if is_react_app %}
     <div id="root"></div>
-    <script defer src="{% static 'react/main.js' %}"></script>
+    <script type="module" src="{% static 'react/main.js' %}"></script>
     {% endif %}
     {% endblock %}
 

@@ -5,11 +5,13 @@ import { createRoot } from "react-dom/client";
 const LOGO_IMAGE = "/static/arch-notions-logo.png";
 
 const MENU_ITEMS = [
+  { label: "Outlook", href: "/indicators/" },
   { label: "About",    href: "/profile/" },
   { label: "Services", href: "/services/" },
   { label: "Articles", href: "/articles/" },
-  { label: "Features", href: "/features/" },
 ];
+
+/*{ label: "Features", href: "/features/" },*/
 
 const CONTACT = {
   email: "we_ready@arch-notions.com",
