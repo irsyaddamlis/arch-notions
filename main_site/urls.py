@@ -26,7 +26,7 @@ def redirect_to_flet_reset(path_suffix: str):
 urlpatterns = [
     path('', views.react_app, name='home'),
     path('profile/', views.profile, name='profile'),
-    path('services/', views.services, name='services'),
+    path('solution/', views.solution, name='solution'),
     path('articles/', views.articles, name='articles'),
     path('features/', views.features, name='features'),
 

@@ -7,7 +7,7 @@ const LOGO_IMAGE = "/static/arch-notions-logo.png";
 const MENU_ITEMS = [
   { label: "Outlook", href: "/indicators/" },
   { label: "About",    href: "/profile/" },
-  { label: "Services", href: "/services/" },
+  { label: "Our Solution", href: "/solution/" },
   { label: "Articles", href: "/articles/" },
 ];
 

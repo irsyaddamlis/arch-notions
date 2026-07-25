@@ -34,7 +34,6 @@ p {
     padding: 8px 16px;
     margin: 5px;
     border-radius: 4px;
-    border: 1px solid var(--dark-green);
     display: inline-block;
     transition: 0.3s;
 }
@@ -46,6 +45,46 @@ p {
     background-color: var(--dark-green);
 }
 
+/* --- Clean React-style Navbar (No Boxes/Borders) --- */
+/* --- Clean React-style Navbar --- */
+.nav-header nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.nav-header .btn, 
+.nav-header .page {
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Inactive Links (Clean Text, No Background) */
+.nav-header .btn {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: rgba(248, 248, 255, 0.7) !important;
+    padding: 6px 12px;
+}
+
+.nav-header .btn:hover {
+    color: #ffffff !important;
+}
+
+/* Active Link State (Blue Background & White Text) */
+.nav-header .page {
+    background-color: #2563eb !important; /* Modern Royal Blue */
+    color: #ffffff !important;           /* White Text */
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    border-radius: 9999px !important;
+    border: none !important;
+}
 /* 4. Home Page Layout — handled by React (main.jsx), CSS removed */
 
 /* 5. Content & Profile Sections */
@@ -65,29 +104,26 @@ p {
     margin-bottom: 10px;
 }
 
-/* 1. This is your perfect circle and border */
+/* Perfect circle image wrapper */
 .circle-container {
     width: 200px;
     height: 200px;
     border-radius: 50%;
     border: 0.05rem solid whitesmoke;
     background-color: whitesmoke;
-    overflow: hidden;        /* Crucial: Crops the image into the circle */
+    overflow: hidden;        /* Crops image into circle */
     box-sizing: border-box;
-    /* Centering the container on the page */
     display: block;
     margin: 0 auto;
 }
 
-/* 2. This forces the image to fill the circle perfectly */
+/* Image inside circle */
 .circle-container img {
     width: 150%;
     height: 100%;
     margin-left: 50px;
     object-fit: fill;       /* Prevents stretching */
-    size: 0cap;
 }
-
 
 .logo-small {
     max-width: 280px;
@@ -574,11 +610,12 @@ p {
   line-height: 1.3;
 }
 
-/* Services page */
+/* Solution page */
 .services-section-title {
     font-size: 22px;
     font-weight: 500;
     margin: 0 0 4px;
+    text-align: left;
 }
 
 .services-section-sub {
@@ -587,6 +624,7 @@ p {
     letter-spacing: 1px;
     text-transform: uppercase;
     margin: 0 0 1.5rem;
+    text-align: left;
 }
 
 .services-grid {
@@ -641,11 +679,11 @@ p {
 }
 
 /* =============================================
-   9. Space Background â€” Profile, Services, Articles
+   9. Space Background — Profile, Solution, Articles
    ============================================= */
 
 #profile.content-page,
-#services.content-page,
+#solution.content-page,
 #articles.content-page,
 #features.content-page,
 #login.content-page
@@ -659,7 +697,7 @@ p {
 
 /* Text colours on dark background */
 #profile.content-page,
-#services.content-page,
+#solution.content-page,
 #articles.content-page,
 #features.content-page,
 #profile.content-page h1,
@@ -667,11 +705,11 @@ p {
 #profile.content-page h3,
 #profile.content-page h4,
 #profile.content-page p,
-#services.content-page h1,
-#services.content-page h2,
-#services.content-page h3,
-#services.content-page h4,
-#services.content-page p,
+#solution.content-page h1,
+#solution.content-page h2,
+#solution.content-page h3,
+#solution.content-page h4,
+#solution.content-page p,
 #articles.content-page h1,
 #articles.content-page h2,
 #articles.content-page h3,
@@ -691,78 +729,50 @@ p {
     color: var(--cream);
 }
 
-/* Nav buttons on space pages */
-#profile .btn,
-#services .btn,
-#articles .btn,
-#features .btn,
-#login .btn {
-    border-color: rgba(248, 248, 255, 0.4);
-    color: var(--cream);
-}
-
-#profile .btn:hover,
-#services .btn:hover,
-#articles .btn:hover,
-#features .btn:hover,
-#login .btn:hover {
-    background: rgba(248, 248, 255, 0.1);
-}
-
-#profile .page,
-#services .page,
-#articles .page,
-#features .page,
-#login .page {
-    background: rgba(248, 248, 255, 0.15);
-    border-color: var(--cream);
-    color: var(--cream);
-}
-
 /* Stat cards */
 #profile .stat-card,
-#services .stat-card {
+#solution .stat-card {
     background: rgba(255, 255, 255, 0.07);
     border: 0.5px solid rgba(255, 255, 255, 0.15);
 }
 
 #profile .stat-number,
-#services .stat-number {
+#solution .stat-number {
     color: var(--cream);
 }
 
 #profile .stat-label,
-#services .stat-label {
+#solution .stat-label {
     color: rgba(248, 248, 255, 0.55);
 }
 
-/* Service cards */
-#services .service-card {
+/* Service cards on space pages */
+#solution .service-card {
     border-color: rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.04);
 }
 
-#services .service-card:hover {
+#solution .service-card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-#services .service-card-title {
+#solution .service-card-title {
     color: var(--cream);
 }
 
-#services .service-card-detail {
+#solution .service-card-detail {
     color: rgba(248, 248, 255, 0.65);
 }
 
-#services .service-number {
+#solution .service-number {
     color: #7adfaa;
 }
 
-#services .services-section-sub {
+#solution .services-section-sub {
     color: rgba(248, 248, 255, 0.45);
 }
 
-#services .services-divider {
+#solution .services-divider {
     border-top-color: rgba(248, 248, 255, 0.15);
 }
 
@@ -838,7 +848,7 @@ p {
 
 /* Admin top bar on space pages — lighten hamburger bars */
 #profile ~ * .admin-drop-btn span,
-#services ~ * .admin-drop-btn span,
+#solution ~ * .admin-drop-btn span,
 #articles ~ * .admin-drop-btn span,
 #features ~ * .admin-drop-btn span,
 #login ~ * .admin-drop-btn span 
@@ -893,7 +903,7 @@ p {
     }
 
     /* Fix content pages layout for mobile */
-    #profile, #services, #articles, #features {
+    #profile, #solution, #articles, #features {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
@@ -902,7 +912,7 @@ p {
 
     /* Push main content to fill space above nav */
     #profile section,
-    #services section,
+    #solution section,
     #articles section,
     #features section,
     #login section 
@@ -916,32 +926,32 @@ p {
         padding: 15px;
     }
 
-    /* Fixed bottom nav */
+    /* Fixed bottom nav on mobile */
     .nav-header nav {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        background-color: var(--cream);
-        border-top: 1px solid var(--dark-green);
+        background-color: #060b1a !important;
+        border-top: 1px solid rgba(248, 248, 255, 0.15) !important;
         padding: 8px 10px;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 5px;
+        gap: 8px;
         z-index: 100;
     }
 
     /* Smaller nav buttons on mobile */
     .nav-header nav a {
-        padding: 5px 10px;
+        padding: 4px 8px;
         font-size: 0.8rem;
         margin: 0;
     }
 
     /* Prevent content from hiding behind fixed nav */
     #profile section,
-    #services section,
+    #solution section,
     #articles section,
     #features section,
     #login section 
@@ -977,7 +987,7 @@ p {
         justify-content: flex-end;
     }
 
-    /* Make sure the 3 hamburger bars are visible on mobile */
+    /* Hamburger bars visibility */
     #adminDropBtn span {
         display: block;
         background-color: var(--dark-green);
@@ -1016,26 +1026,16 @@ p {
         gap: 14px;
     }
 
-    /* Space pages: bottom nav on dark background */
-    #profile .nav-header nav,
-    #services .nav-header nav,
-    #articles .nav-header nav,
-    #features .nav-header nav,
-    #login .nav-header nav {
-        background-color: #060b1a;
-        border-top-color: rgba(248, 248, 255, 0.15);
-    }
-
-    /* 📱 Responsive Adjustments specifically for mobile screens */
+    /* Responsive Adjustments specifically for mobile screens */
     .stats-row {
-        gap: 0.5rem; /* Tighter gaps to maximize space */
+        gap: 0.5rem;
     }
 
     .stat-card {
-        padding: 0.75rem 0.5rem; /* Less padding inside the box */
+        padding: 0.75rem 0.5rem;
     }
     
     .stat-label {
-        font-size: 0.75rem; /* Fixed fallback small size for tiny mobile devices */
+        font-size: 0.75rem;
     }
 }

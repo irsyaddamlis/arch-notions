@@ -51,8 +51,8 @@ def profile(request):
     context.update(_get_services_context())
     return render(request, 'profile.html', context)
 
-def services(request):
-    return render(request, 'services.html', _get_services_context())
+def solution(request):
+    return render(request, 'solution.html', _get_services_context())
 
 # Protect articles page — redirect to login if not logged in
 @login_required(login_url='/login')
@@ -147,40 +147,6 @@ def features(request):
 
 def react_app(request):
     return render(request, 'base.html', {'is_react_app': True})
-
-#@user_passes_test(lambda u: u.is_superuser)
-#def manage_users(request):
-#    if request.method == 'POST':
-#        user_id = request.POST.get('user_id')
-#        action = request.POST.get('action')
-        
-#        try:
-#            target_user = User.objects.get(id=user_id)
-#            if target_user.is_superuser:
-#                messages.error(request, "Cannot modify superuser status.")
-#            elif action == 'toggle_approval':
-#                # Ensure profile exists, then toggle approval
-#                profile, created = UserProfile.objects.get_or_create(user=target_user)
-#                profile.is_approved = not profile.is_approved
-#                profile.save()
-#                messages.success(request, f"Access updated for {target_user.username}")
-#            elif action == 'update_permissions':
-                # Update global boolean flags on the profile
-#                profile, _ = UserProfile.objects.get_or_create(user=target_user)
-#                profile.can_view_all = 'can_view_all' in request.POST
-#                profile.can_download_all = 'can_download_all' in request.POST
-#                profile.save()
-                
-#                messages.success(request, f"Permissions updated for {target_user.username}")
-#        except User.DoesNotExist:
-#            messages.error(request, "User not found.")
-        
-#        return redirect('manage_users')
-
-    # Fetch users with their profiles for display
-#    users = User.objects.filter(is_superuser=False).select_related('userprofile')
-#    return render(request, 'manage_users.html', {'users': users})
-
 
 def indicators_view(request):
     return render(request, "indicators.html")

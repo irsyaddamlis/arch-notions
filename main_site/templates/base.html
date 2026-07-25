@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% if is_react_app %}React App | {% endif %}Arch-notions{% endblock %}</title>
     <link rel="icon" href="{% static 'favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'style.css' %}?v=0.1.4">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=0.1.9">
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -63,7 +63,7 @@
 
     <script>
     (function() {
-        var spacePage = document.querySelector('#profile.content-page, #services.content-page, #articles.content-page, #features.content-page, #login.content-page');
+        var spacePage = document.querySelector('#profile.content-page, #solution.content-page, #articles.content-page, #features.content-page, #login.content-page');
         if (!spacePage) return;
 
         var bars = document.querySelectorAll('#adminDropBtn span');
