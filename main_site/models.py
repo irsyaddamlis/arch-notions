@@ -26,10 +26,13 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Article(models.Model):
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='articles/')
+    # Legacy local-storage field. Kept (nullable) so existing rows still
+    # resolve; new articles are linked via drive_file_id instead.
+    file = models.FileField(upload_to='articles/', blank=True, null=True)
     date = models.DateField()
     is_downloadable = models.BooleanField(default=False)
     file_type = models.CharField(max_length=10)
+    drive_file_id = models.CharField(max_length=100, blank=True)
     allowed_view_users = models.ManyToManyField(
         User, blank=True, related_name='view_articles'
     )

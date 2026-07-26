@@ -42,7 +42,7 @@
                         <div class="article-info">
                             <span class="article-date">{{ article.date|date:"d M Y" }}</span>
                             {% if request.user.is_superuser or request.user.userprofile.can_view_all %}
-                                <a href="#" class="article-title-link" onclick="viewArticle('{{ article.file.url }}'); return false;">{{ article.title }}</a>
+                                <a href="#" class="article-title-link" onclick="viewArticle('{% url 'article_file' article.id %}'); return false;">{{ article.title }}</a>
                             {% else %}
                                 <span class="article-title-locked">{{ article.title }}</span>
                             {% endif %}
@@ -51,7 +51,7 @@
                     <div class="article-row-right">
                         <span class="article-type-badge">{{ article.file_type|upper }}</span>
                         {% if request.user.is_superuser or request.user.userprofile.can_download_all %}
-                            <a href="{{ article.file.url }}" target="_blank" class="article-download-btn" title="Download">↓ Download</a>
+                            <a href="{% url 'article_file' article.id %}?download=1" target="_blank" class="article-download-btn" title="Download">↓ Download</a>
                         {% else %}
                             <span class="article-no-permission">No access</span>
                         {% endif %}

@@ -1,12 +1,14 @@
 from datetime import date
 from typing import Any
 
+import gdc
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.shortcuts import redirect, render
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import Article, UserProfile
 
@@ -76,6 +78,57 @@ def articles(request):
 
     return render(request, 'articles.html', {'articles': articles})
 
+
+def _user_can_view_article(request, article) -> bool:
+    """Same gate used by the `articles` list view, applied per-article."""
+    if request.user.is_superuser:
+        return True
+    profile = getattr(request.user, 'userprofile', None)
+    if not profile or not profile.is_approved:
+        return False
+    if profile.can_view_all:
+        return True
+    return article.allowed_view_users.filter(pk=request.user.pk).exists()
+
+
+@login_required(login_url='/login')
+def article_file(request, article_id):
+    """Proxy endpoint: streams the file from Google Drive only after
+    checking the same approval/permission rules used everywhere else.
+    The Drive file itself can stay private — only the service account
+    behind `gdc` needs access to it."""
+    article = get_object_or_404(Article, id=article_id)
+
+    if not _user_can_view_article(request, article):
+        return HttpResponseForbidden("You do not have permission to view this article.")
+
+    if not article.drive_file_id:
+        raise Http404("This article has no linked file.")
+
+    try:
+        # Reuses gdc's cached/shared connector (same one read_pdf/read_word etc.
+        # use internally) instead of re-authenticating on every request.
+        connector = gdc._get_conn()
+
+        meta = connector.drive_service.files().get(
+            fileId=article.drive_file_id,
+            fields="name,mimeType",
+        ).execute()
+        filename = meta.get("name") or f"article-{article.id}"
+        mime_type = meta.get("mimeType") or "application/octet-stream"
+
+        fh = connector.download_file_as_bytes(article.drive_file_id)
+        file_bytes = fh.read()
+    except Exception:
+        import traceback
+        traceback.print_exc()  # TEMP: prints the real error to the runserver console
+        return HttpResponse("Could not retrieve the file from Google Drive.", status=502)
+
+    response = HttpResponse(file_bytes, content_type=mime_type)
+    disposition = "attachment" if request.GET.get("download") else "inline"
+    response["Content-Disposition"] = f'{disposition}; filename="{filename}"'
+    return response
+
 def register(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -127,15 +180,15 @@ def upload_article(request):
         title = request.POST['title']
         date = request.POST['date']
         file_type = request.POST['file_type']
-        file = request.FILES['file']
+        drive_file_id = request.POST['drive_file_id']
         is_downloadable = 'is_downloadable' in request.POST
 
         Article.objects.create(
             title=title,
             date=date,
             file_type=file_type,
-            file=file,
-            is_downloadable=is_downloadable
+            drive_file_id=drive_file_id,
+            is_downloadable=is_downloadable,
         )
         return redirect('articles')
 

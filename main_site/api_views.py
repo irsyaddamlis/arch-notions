@@ -72,7 +72,12 @@ def articles(request):
                 'title': a.title,
                 'date': a.date.isoformat(),
                 'file_type': a.file_type,
-                'file_url': request.build_absolute_uri(a.file.url),
+                # Goes through the permission-gated proxy view instead of a
+                # direct storage/Drive URL, so approval + download rules are
+                # enforced on every request rather than baked into a link.
+                'file_url': request.build_absolute_uri(
+                    reverse('article_file', args=[a.id]) # type: ignore
+                ),
                 'is_downloadable': a.is_downloadable or (not request.user.is_superuser and profile.can_download_all), # type: ignore
             }
         )
@@ -164,15 +169,15 @@ def upload_article(request):
         or request.data.get('is_downloadable') in ['true', 'True', True, 1, '1']
     )
 
-    uploaded_file = request.FILES.get('file')
-    if not uploaded_file:
-        return Response({'detail': 'file is required'}, status=status.HTTP_400_BAD_REQUEST)
+    drive_file_id = request.data.get('drive_file_id')
+    if not drive_file_id:
+        return Response({'detail': 'drive_file_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
     Article.objects.create(
         title=title,
         date=date,
         file_type=file_type,
-        file=uploaded_file,
+        drive_file_id=drive_file_id,
         is_downloadable=is_downloadable,
     )
     return Response({'ok': True})
@@ -246,7 +251,8 @@ def password_reset_confirm(request):
     return Response({'ok': True})
 
 # Add this function to api_views.py, alongside upload_article.
-# Deletes both the DB record and the underlying file from storage.
+# Deletes the DB record. Local `file` (legacy) is cleaned up from storage
+# if present; Drive-linked articles have nothing local to remove.
 
 @api_view(['POST'])
 @csrf_exempt
@@ -263,7 +269,9 @@ def delete_article(request):
     except Article.DoesNotExist:
         return Response({'detail': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Remove the underlying file from storage, not just the DB row.
+    # Remove the underlying local file from storage, if this is a legacy
+    # article that still has one. Drive-linked articles (drive_file_id) have
+    # nothing local to clean up here.
     if article.file:
         article.file.delete(save=False)
     article.delete()

@@ -105,13 +105,38 @@ class ManageUsersState(rx.State):
 
 # ── State: Upload Article ────────────────────────────────────────────────────
 
+import re
+
+_DRIVE_ID_PATTERNS = [
+    r"/file/d/([a-zA-Z0-9_-]{10,})",   # .../file/d/<ID>/view
+    r"[?&]id=([a-zA-Z0-9_-]{10,})",    # .../uc?id=<ID> or open?id=<ID>
+]
+
+
+def extract_drive_file_id(raw: str) -> str:
+    """Accepts a full Google Drive share link or a bare file id and
+    returns just the file id. Returns '' if nothing could be parsed."""
+    raw = raw.strip()
+    if not raw:
+        return ""
+    for pattern in _DRIVE_ID_PATTERNS:
+        m = re.search(pattern, raw)
+        if m:
+            return m.group(1)
+    # No URL pattern matched — assume they pasted the bare ID already.
+    if re.fullmatch(r"[a-zA-Z0-9_-]{10,}", raw):
+        return raw
+    return ""
+
+
 class UploadState(rx.State):
     title: str = ""
     date: str = ""
     file_type: str = "PDF"
+    drive_link: str = ""
     status: str = ""
     status_color: str = "white"
-    uploaded_filename: str = ""
+    parsed_drive_id: str = ""
 
     def update_title(self, value: str):
         self.title = value
@@ -119,19 +144,20 @@ class UploadState(rx.State):
     def update_date(self, value: str):
         self.date = value
 
-    async def handle_upload(self, files: list[rx.UploadFile]):
-        if not files:
-            self.status = "Please choose a file first."
-            self.status_color = STOP
-            return
+    def update_drive_link(self, value: str):
+        self.drive_link = value
+        self.parsed_drive_id = extract_drive_file_id(value)
+
+    def handle_submit(self):
         if not self.title or not self.date:
             self.status = "Title and date are required."
             self.status_color = STOP
             return
-
-        file = files[0]
-        data = await file.read()
-        self.uploaded_filename = file.filename # type: ignore
+        drive_id = extract_drive_file_id(self.drive_link)
+        if not drive_id:
+            self.status = "Couldn't parse a Google Drive file ID from that link."
+            self.status_color = STOP
+            return
 
         try:
             resp = requests.post(
@@ -140,13 +166,13 @@ class UploadState(rx.State):
                     "title": self.title,
                     "date": self.date,
                     "file_type": self.file_type,
+                    "drive_file_id": drive_id,
                 },
-                files={"file": (file.filename, data)},
                 headers=AUTH_HEADERS,
-                timeout=60,
+                timeout=30,
             )
             if resp.status_code in (200, 201):
-                self.status = "✓ Upload successful."
+                self.status = "✓ Article linked successfully."
                 self.status_color = GO
             else:
                 self.status = f"✗ Failed: {resp.status_code} {resp.text}"
@@ -509,45 +535,37 @@ def upload_article_page() -> rx.Component:
             align_items="center",
         ),
         rx.box(
-            rx.upload(
-                rx.vstack(
-                    rx.button(
-                        "Choose File",
-                        type="button",
-                        style={"background": BRASS, "color": INK},
-                    ),
-                    rx.text("Drag/drop or click", size="1", color=MUTED, class_name="eyebrow"),
+            rx.vstack(
+                rx.input(
+                    placeholder="Paste Google Drive share link (or file ID)",
+                    on_change=UploadState.update_drive_link, # type: ignore
+                    width="100%",
+                    style=input_style,
                 ),
-                id="article_upload",
-                accept={
-                    "application/pdf": [".pdf"],
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
-                },
-                max_files=1,
-                border=f"1px dashed {LINE}",
-                padding="24px",
-                background=PANEL,
+                rx.text(
+                    rx.cond(
+                        UploadState.parsed_drive_id != "",
+                        f"Parsed file ID: {UploadState.parsed_drive_id}",
+                        "Paste a Drive share link — the file must be viewable by your service account.",
+                    ),
+                    size="1",
+                    color=rx.cond(UploadState.parsed_drive_id != "", GO, MUTED),
+                    class_name="data-mono",
+                ),
+                spacing="2",
+                width="100%",
             ),
             class_name="blueprint-frame",
-            padding="8px",
-        ),
-        rx.hstack(
-            rx.foreach(rx.selected_files("article_upload"), lambda f: rx.text(f, color=PAPER, class_name="data-mono", size="2")),
+            padding="16px",
+            width="100%",
         ),
         rx.hstack(
             rx.button(
-                "Upload",
-                on_click=UploadState.handle_upload(rx.upload_files(upload_id="article_upload")), # type: ignore
+                "Link Article",
+                on_click=UploadState.handle_submit, # type: ignore
                 style={"background": BRASS, "color": INK},
             ),
-            rx.button(
-                "Clear",
-                on_click=rx.clear_selected_files("article_upload"),
-                variant="outline",
-                color_scheme="gray",
-            ),
         ),
-        rx.text(UploadState.uploaded_filename, color=MUTED, size="1", class_name="data-mono"),
         rx.text(UploadState.status, color=UploadState.status_color, class_name="data-mono", size="2"),
         width="600px",
         spacing="3",

@@ -28,6 +28,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('solution/', views.solution, name='solution'),
     path('articles/', views.articles, name='articles'),
+    path('articles/<int:article_id>/file/', views.article_file, name='article_file'),
     path('features/', views.features, name='features'),
 
     # Include the API endpoints
