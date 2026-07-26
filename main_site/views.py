@@ -36,8 +36,8 @@ def _get_services_context() -> dict[str, Any]:
             "detail": "Utilizing advanced location intelligence to identify high-potential sites for new points of sale, ensuring data-driven expansion for your enterprise"
         },
         {
-            "name": "AI-Driven Conversational Systems",
-            "detail": "Implementing intelligent chatbots to digitize customer service operations and streamline internal knowledge management, enhancing both customer experience and operational efficiency."
+            "name": "AI-Driven Systems",
+            "detail": "Implementing intelligent to digitize customer service operations and streamline internal knowledge management, enhancing both customer experience and operational efficiency."
         },
     ]
     return {

@@ -2,7 +2,7 @@ const NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Outlook" },
   { label: "About", href: "/profile/" },
-  { label: "Our Solution", href: "/solution/" },
+  { label: "Solution", href: "/solution/" },
   { label: "Articles", href: "/articles/" },
 ];
 

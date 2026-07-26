@@ -6,10 +6,39 @@ const LOGO_IMAGE = "/static/arch-notions-logo.png";
 
 const MENU_ITEMS = [
   { label: "Outlook", href: "/indicators/" },
-  { label: "About",    href: "/profile/" },
-  { label: "Our Solution", href: "/solution/" },
+  { label: "About", href: "/profile/" },
+  { label: "Solution", href: "/solution/" },
   { label: "Articles", href: "/articles/" },
 ];
+
+function NavBar({ current = "Home" }) {
+  return (
+    <nav className="flex gap-4">
+      {MENU_ITEMS.map((item) => {
+        const isActive = item.label === current || item.href === window.location.pathname;
+
+        return isActive ? (
+          // Render a non-clickable text element for the active page
+          <span 
+            key={item.label} 
+            className="cursor-default font-bold text-white px-3 py-1 bg-blue-600 rounded-full"
+          >
+            {item.label}
+          </span>
+        ) : (
+          // Render standard clickable link for other pages
+          <a
+            key={item.label}
+            href={item.href}
+            className="text-slate-300 hover:text-white px-3 py-1"
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+}
 
 /*{ label: "Features", href: "/features/" },*/
 
@@ -36,15 +65,7 @@ const styles = {
     userSelect: "none",
     background: "#05050a",
   },
-  //bgLayer: {
-  //  position: "absolute",
-  //  inset: 0,
-  //  backgroundImage: `url("${BG_IMAGE}")`,
-  //  backgroundSize: "cover",
-  //  backgroundPosition: "center",
-  //  opacity: 0.9,
-  //  zIndex: 0,
-  //},
+
   canvas: {
     position: "absolute",
     inset: 0,

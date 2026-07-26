@@ -10,7 +10,7 @@
             <a href="{% url 'home' %}" class="btn">Home</a>
             <a href="{% url 'indicators' %}" class="btn">Outlook</a>
             <a href="{% url 'profile' %}" class="btn">About</a>
-            <a class="page">Our Solution</a>
+            <a class="page">Solution</a>
             <a href="{% url 'articles' %}" class="btn">Articles</a>
         </nav>
         <div class="profile-logo-container reveal">
@@ -19,43 +19,18 @@
     </header>
 
     <section>
-        <article class="services-body">
-
-            <div class="reveal">
-                <h2 class="services-section-title core">Core Services</h2>
-                <p class="services-section-sub">What we do best</p>
-            </div>
-
-            <div class="services-grid">
-                {% for service in core_services %}
-                <div class="service-card reveal">
-                    <span class="service-number">0{{ forloop.counter }}</span>
-                    <h4 class="service-card-title">{{ service.name }}</h4>
-                    <p class="service-card-detail">{{ service.detail }}</p>
-                </div>
-                {% endfor %}
-            </div>
-
-            <hr class="services-divider reveal">
-
-            <div class="reveal">
-                <h2 class="services-section-title other">Other Services</h2>
-                <p class="services-section-sub">Specialized capabilities</p>
-            </div>
-
-            <div class="services-grid">
-                {% for service in other_services %}
-                <div class="service-card reveal">
-                    <span class="service-number">0{{ forloop.counter }}</span>
-                    <h4 class="service-card-title">{{ service.name }}</h4>
-                    <p class="service-card-detail">{{ service.detail }}</p>
-                </div>
-                {% endfor %}
-            </div>
-
-        </article>
+        <div class="reveal">
+            <p> Feasibility Study </p>
+            <p> Sales Funnel & Revenue Pipeline </p>
+            <p> Objective Performance Assessment </p>
+            <p> Customer Handling </p>
+            <p> Business Forecasting & Predictive </p>
+            <p> Finacial Impact & Modeling </p>
+            <p> AI optimization </p>
+            <p> Project Management </p>
+        </div>
     </section>
-</section>
+
 
 <script>
 const reveals = document.querySelectorAll('.reveal');
