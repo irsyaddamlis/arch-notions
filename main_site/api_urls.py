@@ -8,6 +8,7 @@ urlpatterns = [
     path('articles/', api_views.articles, name='api_articles'),
 
     path('upload-article/', api_views.upload_article, name='api_upload_article'),
+    path('edit-article/', api_views.edit_article, name='api_edit_article'),
     path('delete-article/', api_views.delete_article, name='api_delete_article'),
     path('manage-users/', api_views.manage_users, name='api_manage_users'),
     path('manage-users/action/', api_views.manage_users_action, name='api_manage_users_action'),

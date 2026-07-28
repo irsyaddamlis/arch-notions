@@ -1,7 +1,6 @@
 import { createElement, useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-//const BG_IMAGE   = "/static/building-business.jpg";
 const LOGO_IMAGE = "/static/arch-notions-logo.png";
 
 const MENU_ITEMS = [
@@ -77,7 +76,6 @@ const styles = {
   bgOverlay: {
     position: "absolute",
     inset: 0,
-    //background: "rgba(248, 248, 255, 0.3)",
     background: "rgba(5, 5, 10, 0.4)",
     zIndex: 2,
     pointerEvents: "none"
@@ -85,15 +83,14 @@ const styles = {
   logoWrap: {
     position: "absolute",
     top: "40%",
-    left: 0,
-    right: 0,
+    left: "50%",
     width: "100%",
     display: "flex",
-    //background: "rgba(248, 248, 255, 0.5)",
-    background: "transparent",
+    alignItems: "center",
+    flexDirection: "column",
     justifyContent: "center",
-    transform: "translateY(-50%)",
-    zIndex: 2,
+    transform: "translate(-50%,-50%)",
+    zIndex: 3,
   },
   logoImg: {
     width: "min(90vw, 800px)",
@@ -463,7 +460,20 @@ export default function HomePage() {
       <div style={styles.bgOverlay} />
       
       <div style={styles.logoWrap}>
-        <img src={LOGO_IMAGE} alt="arch-notions" style={styles.logoImg} />
+        <img src={LOGO_IMAGE} alt="arch-notions" style={styles.logoImg} 
+        />
+        <p 
+          style={{
+            marginTop:"40",
+            fontSize: "20px",
+            textShadow: "0 0 8px rgba(90, 170, 110, 0.5)",
+            color: "#5AAA6E",
+            textAlign: "center",
+            fontWeight: "600",
+            fontFamily: "Inter, sans-serif"
+        }}
+        > A consulting firm powered by data, science, and strategic insights
+        </p>
       </div>
 
       <div style={styles.hint(hintVisible)}>move mouse left · right over menu</div>

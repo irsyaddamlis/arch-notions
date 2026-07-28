@@ -1,12 +1,11 @@
 from datetime import date
 from typing import Any
 
-import gdc
+import gdc  # type: ignore
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -56,27 +55,13 @@ def profile(request):
 def solution(request):
     return render(request, 'solution.html', _get_services_context())
 
-# Protect articles page — redirect to login if not logged in
+# Protect articles page — redirect to login if not logged in.
+# Approval/permission filtering now happens client-side via /api/articles/,
+# which returns 403 for unapproved accounts and already filters the list
+# server-side per user, so this view just needs to gate the page itself.
 @login_required(login_url='/login')
 def articles(request):
-    # Check if the user is approved (Superusers bypass this check)
-    if not request.user.is_superuser:
-        profile = getattr(request.user, 'userprofile', None)
-        if not profile or not profile.is_approved:
-            messages.info(request, "Your Account is Waiting Approval")
-            return render(request, 'articles.html', {'articles': []})
-
-        # Filter articles based on permissions
-        if not profile.can_view_all:
-            articles = Article.objects.filter(
-                Q(allowed_view_users=request.user)
-            ).distinct()
-        else:
-            articles = Article.objects.all()
-    else:
-        articles = Article.objects.all()
-
-    return render(request, 'articles.html', {'articles': articles})
+    return render(request, 'articles.html')
 
 
 def _user_can_view_article(request, article) -> bool:

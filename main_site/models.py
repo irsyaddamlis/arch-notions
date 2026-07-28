@@ -23,16 +23,58 @@ def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'userprofile'):
         instance.userprofile.save()
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+ 
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Categories'
+ 
+    def __str__(self):
+        return self.name
 
 class Article(models.Model):
+    CATEGORY_FINANCIAL_ANALYTIC = "financial_analytic"
+    CATEGORY_PROJECT_MANAGEMENT = "project_management"
+    CATEGORY_BUSINESS_DEVELOPMENT = "business_development"
+    CATEGORY_MARKET_ANALYSIS = "market_analysis"
+    CATEGORY_INTELLIGENCE = "intelligence"
+    CATEGORY_INDUSTRY_REPORT = "industry_report"
+    CATEGORY_SCIENCE = "science"
+    CATEGORY_STATISTIC = "statistic"
+    CATEGORY_SCRIPT = 'script'
+    CATEGORY_WHITEPAPER = 'whitepaper'
+ 
+    CATEGORY_CHOICES = [
+        (CATEGORY_FINANCIAL_ANALYTIC, "Financial Analytic"),
+        (CATEGORY_PROJECT_MANAGEMENT, "Project Management"),
+        (CATEGORY_BUSINESS_DEVELOPMENT, "Business Development"),
+        (CATEGORY_MARKET_ANALYSIS, "Market Analysis"),
+        (CATEGORY_INTELLIGENCE, "Business Analyst & Intelligence"),
+        (CATEGORY_INDUSTRY_REPORT, "Industry Report"),
+        (CATEGORY_SCIENCE, "Data Science"),
+        (CATEGORY_STATISTIC, "Statistic"),
+        (CATEGORY_SCRIPT, "Code Script"),
+        (CATEGORY_WHITEPAPER, "Whitepaper"),
+    ]
+
+    date = models.DateField()
     title = models.CharField(max_length=200)
     # Legacy local-storage field. Kept (nullable) so existing rows still
     # resolve; new articles are linked via drive_file_id instead.
     file = models.FileField(upload_to='articles/', blank=True, null=True)
-    date = models.DateField()
     is_downloadable = models.BooleanField(default=False)
     file_type = models.CharField(max_length=10)
     drive_file_id = models.CharField(max_length=100, blank=True)
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='articles'
+    )
+    creator = models.CharField(
+        max_length=100, blank=True,
+        help_text="Free-text author/analyst name shown as the byline.",
+    )
+    # Free-text byline; optional, not tied to a login account.
+    creator_name = models.CharField(max_length=150, blank=True)
     allowed_view_users = models.ManyToManyField(
         User, blank=True, related_name='view_articles'
     )

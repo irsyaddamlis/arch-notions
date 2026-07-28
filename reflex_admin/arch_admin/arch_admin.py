@@ -11,6 +11,7 @@ API_BASE = "http://127.0.0.1:8000/api"
 ADMIN_TOKEN = os.environ.get("ARCH_ADMIN_TOKEN", "684bc833a6abe07e59da2b04f5c829b026e595cb")
 AUTH_HEADERS = {"Authorization": f"Token {ADMIN_TOKEN}"}
 DJANGO_URL = os.environ.get("DJANGO_URL", "http://localhost:8000")
+DJANGO_ARTICLE = f"{DJANGO_URL.rstrip('/')}/articles/"
 
 NAV_ITEMS = [
     ("Manage Users", "/manage-users"),
@@ -130,9 +131,11 @@ def extract_drive_file_id(raw: str) -> str:
 
 
 class UploadState(rx.State):
-    title: str = ""
     date: str = ""
     file_type: str = "PDF"
+    title: str = ""
+    category: str = "whitepaper"
+    creator: str = ""
     drive_link: str = ""
     status: str = ""
     status_color: str = "white"
@@ -143,6 +146,14 @@ class UploadState(rx.State):
 
     def update_date(self, value: str):
         self.date = value
+
+    def update_category(self, label: str):
+        # rx.select surfaces the human label; store the underlying value key.
+        self.category = _CATEGORY_LABEL_TO_VALUE.get(label, self.category)
+
+
+    def update_creator(self, value: str):
+        self.creator = value
 
     def update_drive_link(self, value: str):
         self.drive_link = value
@@ -163,8 +174,10 @@ class UploadState(rx.State):
             resp = requests.post(
                 f"{API_BASE}/upload-article/",
                 data={
-                    "title": self.title,
                     "date": self.date,
+                    "title": self.title,
+                    "category": self.category,
+                    "creator": self.creator,
                     "file_type": self.file_type,
                     "drive_file_id": drive_id,
                 },
@@ -187,11 +200,26 @@ class UploadState(rx.State):
 @dataclass
 class ArticleRow:
     id: int
-    title: str
     date: str
     file_type: str
-    file_url: str
+    title: str
+    category: str
+    category_display: str
+    creator: str
 
+CATEGORY_OPTIONS = [
+    ("financial_analytic", "Financial Analytic"),
+    ("project_management", "Project Management"),
+    ("business_development", "Business Development"),
+    ("market_analysis", "Market Analysis"),
+    ("intelligence", "Business Analyst & Intelligence"),
+    ("industry_report", "Industry Report"),
+    ("science", "Data Science"),
+    ("statistic", "Statistic"),
+    ("script", "Code Script"),
+    ("whitepaper", "Whitepaper")
+]
+_CATEGORY_LABEL_TO_VALUE = {label: value for value, label in CATEGORY_OPTIONS}
 
 class ArticlesState(rx.State):
     articles: list[ArticleRow] = []
@@ -199,6 +227,15 @@ class ArticlesState(rx.State):
     status_color: str = "white"
     loading: bool = False
     confirming_id: int = 0
+
+    # Edit form state
+    editing_id: int = 0
+    edit_date: str = ""
+    edit_title: str = ""
+    edit_category: str = "whitepaper"
+    edit_creator: str = ""
+    edit_status: str = ""
+    edit_status_color: str = "white"
 
     def load_articles(self):
         self.loading = True
@@ -214,12 +251,13 @@ class ArticlesState(rx.State):
             data = r.json().get("results", [])
             self.articles = [
                 ArticleRow(
-                    id=a.get("id"),
-                    title=a.get("title", "-"),
+                    id=a.get("id"), # type: ignore
                     date=a.get("date", "-"),
+                    title=a.get("title", "-"),
                     file_type=a.get("file_type", "-"),
-                    file_url=a.get("file_url", ""),
-                )
+                    category=a.get("category", "whitepaper"),
+                    category_display=a.get("category_display", "-"),
+                    creator=a.get("creator", ""),                )
                 for a in data
             ]
             self.status = f"Loaded {len(self.articles)} article(s)."
@@ -254,6 +292,64 @@ class ArticlesState(rx.State):
         yield ArticlesState.load_articles
 
 
+    # ── Edit ──────────────────────────────────────────────────────────────
+ 
+    def start_edit(self, a: ArticleRow):
+        self.editing_id = a.id
+        self.edit_date = a.date
+        self.edit_title = a.title
+        self.edit_category = a.category
+        self.edit_creator = a.creator
+        self.edit_status = ""
+ 
+    def cancel_edit(self):
+        self.editing_id = 0
+        self.edit_status = ""
+ 
+    def update_edit_title(self, value: str):
+        self.edit_title = value
+ 
+    def update_edit_date(self, value: str):
+        self.edit_date = value
+ 
+    def update_edit_category(self, label: str):
+        self.edit_category = _CATEGORY_LABEL_TO_VALUE.get(label, self.edit_category)
+ 
+    def update_edit_creator(self, value: str):
+        self.edit_creator = value
+ 
+    def submit_edit(self):
+        if not self.edit_title or not self.edit_date:
+            self.edit_status = "Title and date are required."
+            self.edit_status_color = STOP
+            return
+        try:
+            r = requests.post(
+                f"{API_BASE}/edit-article/",
+                json={
+                    "article_id": self.editing_id,
+                    "date": self.edit_date,
+                    "title": self.edit_title,
+                    "category": self.edit_category,
+                    "creator": self.edit_creator,
+                },
+                headers=AUTH_HEADERS,
+                timeout=30,
+            )
+            if r.status_code == 200:
+                self.editing_id = 0
+                self.status = "Article updated."
+                self.status_color = GO
+            else:
+                self.edit_status = f"Failed: {r.status_code} {r.text}"
+                self.edit_status_color = STOP
+                return
+        except Exception as ex:
+            self.edit_status = f"Error: {ex}"
+            self.edit_status_color = STOP
+            return
+        yield
+        yield ArticlesState.load_articles
 
 
 def _nav_link(label: str, route: str, current: str) -> rx.Component:
@@ -300,6 +396,12 @@ def sidebar(current: str) -> rx.Component:
             padding="8px 4px",
             _hover={"color": PAPER},
         ),
+        rx.link(
+            rx.text("← Back to Article", color=MUTED, size="2"),
+            href=DJANGO_ARTICLE,
+            padding="8px 4px",
+            _hover={"color": PAPER},
+        ),        
         width="220px",
         min_width="220px",
         max_width="220px",
@@ -433,14 +535,28 @@ def manage_users_page() -> rx.Component:
 
 def _article_row(a: ArticleRow) -> rx.Component:
     is_confirming = ArticlesState.confirming_id == a.id
-    return rx.hstack(
-        rx.text(a.title, width="260px", color=PAPER, weight="medium"),
-        rx.text(a.date, width="120px", color=MUTED, class_name="data-mono", size="2"),
+    is_editing = ArticlesState.editing_id == a.id
+
+    display_row = rx.hstack(
+        rx.vstack(
+            rx.text(a.title, color=PAPER, weight="medium"),
+            rx.hstack(
+                rx.text(a.category_display, size="1", class_name="eyebrow", color=BRASS),
+                rx.cond(
+                    a.creator != "",
+                    rx.text(f"By {a.creator}", size="1", color=MUTED),
+                ),
+                spacing="3",
+            ),
+            spacing="1",
+            align_items="start",
+            width="260px",
+        ),
+        rx.text(a.date, width="110px", color=MUTED, class_name="data-mono", size="2"),
         rx.box(
             rx.text(a.file_type, size="1", class_name="eyebrow", color=BRASS),
-            width="90px",
+            width="70px",
         ),
-        rx.link(rx.text("View", size="2", color=BRASS), href=a.file_url, is_external=True, width="70px"),
         rx.spacer(),
         rx.cond(
             is_confirming,
@@ -461,12 +577,22 @@ def _article_row(a: ArticleRow) -> rx.Component:
                 ),
                 spacing="2",
             ),
-            rx.button(
-                "Delete",
-                on_click=lambda: ArticlesState.ask_delete(a.id), # type: ignore
-                variant="outline",
-                color_scheme="red",
-                size="2",
+            rx.hstack(
+                rx.button(
+                    "Edit",
+                    on_click=lambda: ArticlesState.start_edit(a), # type: ignore
+                    variant="outline",
+                    color_scheme="gray",
+                    size="2",
+                ),
+                rx.button(
+                    "Delete",
+                    on_click=lambda: ArticlesState.ask_delete(a.id), # type: ignore
+                    variant="outline",
+                    color_scheme="red",
+                    size="2",
+                ),
+                spacing="2",
             ),
         ),
         padding="14px",
@@ -475,6 +601,68 @@ def _article_row(a: ArticleRow) -> rx.Component:
         width="100%",
         align_items="center",
     )
+ 
+    edit_form = rx.vstack(
+        rx.hstack(
+            rx.input(
+                value=ArticlesState.edit_title,
+                placeholder="Title",
+                on_change=ArticlesState.update_edit_title, # type: ignore
+                width="260px",
+                style={"borderColor": LINE, "color": PAPER, "background": INK},
+            ),
+            rx.input(
+                value=ArticlesState.edit_date,
+                type="date",
+                on_change=ArticlesState.update_edit_date, # type: ignore
+                width="160px",
+                style={"borderColor": LINE, "color": PAPER, "background": INK},
+            ),
+            rx.select(
+                [label for _, label in CATEGORY_OPTIONS],
+                placeholder=a.category_display,
+                on_change=ArticlesState.update_edit_category, # type: ignore
+                width="200px",
+            ),
+            spacing="3",
+        ),
+        rx.hstack(
+            rx.input(
+                value=ArticlesState.edit_creator,
+                placeholder="Creator / Author",
+                on_change=ArticlesState.update_edit_creator, # type: ignore
+                width="260px",
+                style={"borderColor": LINE, "color": PAPER, "background": INK},
+            ),
+            spacing="4",
+            align_items="center",
+        ),
+        rx.hstack(
+            rx.button(
+                "Save",
+                on_click=ArticlesState.submit_edit, # type: ignore
+                style={"background": BRASS, "color": INK},
+                size="2",
+            ),
+            rx.button(
+                "Cancel",
+                on_click=ArticlesState.cancel_edit, # type: ignore
+                variant="outline",
+                color_scheme="gray",
+                size="2",
+            ),
+            rx.text(ArticlesState.edit_status, color=ArticlesState.edit_status_color, size="2", class_name="data-mono"),
+            spacing="3",
+            align_items="center",
+        ),
+        padding="14px",
+        border=f"1px solid {BRASS}",
+        background=PANEL,
+        width="100%",
+        spacing="3",
+    )
+ 
+    return rx.cond(is_editing, edit_form, display_row)
 
 
 @rx.page(route="/manage-articles", on_load=ArticlesState.load_articles) # type: ignore
@@ -533,6 +721,32 @@ def upload_article_page() -> rx.Component:
             rx.text("PDF", color=BRASS, size="2", weight="medium", class_name="data-mono"),
             spacing="2",
             align_items="center",
+        ),
+        rx.hstack(
+            rx.vstack(
+                rx.text("Category", size="1", color=MUTED, class_name="eyebrow"),
+                rx.select(
+                    [label for _, label in CATEGORY_OPTIONS],
+                    placeholder="Whitepaper",
+                    on_change=UploadState.update_category, # type: ignore
+                    width="100%",
+                ),
+                spacing="1",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text("Creator / Author", size="1", color=MUTED, class_name="eyebrow"),
+                rx.input(
+                    placeholder="e.g. Irsyad Damlis",
+                    on_change=UploadState.update_creator, # type: ignore
+                    width="100%",
+                    style=input_style,
+                ),
+                spacing="1",
+                width="100%",
+            ),
+            spacing="4",
+            width="100%",
         ),
         rx.box(
             rx.vstack(

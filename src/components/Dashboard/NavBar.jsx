@@ -1,6 +1,6 @@
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
-  { label: "Outlook" },
+  { label: "Outlook", href: "/indicators/"  },
   { label: "About", href: "/profile/" },
   { label: "Solution", href: "/solution/" },
   { label: "Articles", href: "/articles/" },
@@ -23,10 +23,16 @@ export default function NavBar({ current }) {
         return (
           <a
             key={item.label}
-            href={item.href}
+            href={isActive ? undefined : item.href}
+            onClick={(e) => {
+              if (isActive) {
+                e.preventDefault();
+              }
+            }}
+            aria-current={isActive ? "page" : undefined}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               isActive
-                ? "bg-[#3B7CF6] text-white"
+                ? "bg-[#3B7CF6] text-white cursor-default"
                 : "text-gray-400 hover:text-white"
             }`}
           >
