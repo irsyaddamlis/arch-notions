@@ -253,18 +253,10 @@ export default function ArticlesPage() {
       <div className="relative z-10 mx-auto max-w-5xl">
         <div className="flex items-start justify-between mb-10">
           <header>
-            <a href="/" className="inline-block mb-4">
-              <ArchNotionsLogo className="w-40" />
-            </a>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: BRASS }}>
-              Research &amp; Analysis
-            </p>
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight" style={{ color: "#fff" }}>
+            <ArchNotionsLogo className="mb-1 w-128"/>
+            <h1 className="text-2xl sm:text-2xl font-semibold tracking-tight" style={{ color: "#fff" }}>
               Insight &amp; Knowledge
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6" style={{ color: MUTED }}>
-              Economy, Market, &amp; Technology
-            </p>
           </header>
           <NavBar current="Articles" />
         </div>

@@ -5,34 +5,37 @@
 
 {% block content %}
 <section id="profile" class="content-page">
-    <header class="nav-header">
-        <nav>
+    <header class="hero-header">
+        <div class="brand">
+            <img src="{% static 'arch-notions-logo.png' %}">
+            
+            <p class="brand-tagline">
+                A consulting firm powered by data, science, &amp; strategic insights
+        </div>
+
+        <nav class="main-nav">
             <a href="{% url 'home' %}" class="btn">Home</a>
             <a href="{% url 'indicators' %}" class="btn">Outlook</a>
             <a class="page">About</a>
             <a href="{% url 'solution' %}" class="btn">Solution</a>
             <a href="{% url 'articles' %}" class="btn">Articles</a>
         </nav>
-
-        <div class="profile-logo-container reveal">
-            <img src="{% static 'arch-notions-logo.png' %}">
-        </div>
-
-        <div class="stats-row reveal">
-            <div class="stat-card">
-                <p class="stat-number">LEGAL NAME</p>
-                <p class="stat-label">PT ARAH NYATA SOLUSI</p>
-            </div>
-            <div class="stat-card">
-                <p class="stat-number">FOUNDED</p>
-                <p class="stat-label">2026</p>
-            </div>
-            <div class="stat-card">
-                <p class="stat-number">BASE</p>
-                <p class="stat-label">INDONESIA</p>
-            </div>
-        </div>
     </header>
+
+    <div class="stats-row reveal">
+        <div class="stat-card">
+            <p class="stat-number">LEGAL NAME</p>
+            <p class="stat-label">PT ARAH NYATA SOLUSI</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-number">FOUNDED</p>
+            <p class="stat-label">2026</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-number">BASE</p>
+            <p class="stat-label">INDONESIA</p>
+        </div>
+    </div>
 
     <section>
         <article class="profile-body">

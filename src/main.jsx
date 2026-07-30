@@ -82,7 +82,7 @@ const styles = {
   },
   logoWrap: {
     position: "absolute",
-    top: "40%",
+    top: "45%",
     left: "50%",
     width: "100%",
     display: "flex",
@@ -462,7 +462,7 @@ export default function HomePage() {
       <div style={styles.logoWrap}>
         <img src={LOGO_IMAGE} alt="arch-notions" style={styles.logoImg} 
         />
-        <p 
+        {/*<p 
           style={{
             marginTop:"40",
             fontSize: "20px",
@@ -473,7 +473,7 @@ export default function HomePage() {
             fontFamily: "Inter, sans-serif"
         }}
         > A consulting firm powered by data, science, and strategic insights
-        </p>
+        </p>*/}
       </div>
 
       <div style={styles.hint(hintVisible)}>move mouse left · right over menu</div>
