@@ -76,4 +76,5 @@ urlpatterns = [
         name='password_reset_complete',
     ),
     path("indicators/", views.indicators_view, name="indicators"),
+    path("yourpagename/", views.solution_view, name="solution"),
 ]

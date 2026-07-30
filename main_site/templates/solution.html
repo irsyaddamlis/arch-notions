@@ -1,48 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Solution | Arch-notions{% endblock %}
+{% block title %}Your Page | Arch-notions{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/output.css' %}">
+{% endblock %}
 
 {% block content %}
-<section id="solution" class="content-page">
-    <header class="nav-header">
-        <nav>
-            <a href="{% url 'home' %}" class="btn">Home</a>
-            <a href="{% url 'indicators' %}" class="btn">Outlook</a>
-            <a href="{% url 'profile' %}" class="btn">About</a>
-            <a class="page">Solution</a>
-            <a href="{% url 'articles' %}" class="btn">Articles</a>
-        </nav>
-        <div class="profile-logo-container reveal">
-            <img src="{% static 'arch-notions-logo.png' %}">
-        </div>
-    </header>
-
-    <section>
-        <div class="reveal">
-            <p> Feasibility Study </p>
-            <p> Sales Funnel & Revenue Pipeline </p>
-            <p> Objective Performance Assessment </p>
-            <p> Customer Handling </p>
-            <p> Business Forecasting & Predictive </p>
-            <p> Finacial Impact & Modeling </p>
-            <p> AI optimization </p>
-            <p> Project Management </p>
-        </div>
-    </section>
-
-
-<script>
-const reveals = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-            entry.target.style.animationDelay = (i * 80) + 'ms';
-            entry.target.classList.add('visible');
-            io.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.1 });
-reveals.forEach(el => io.observe(el));
-</script>
+<div id="root"></div>
+<script type="module" src="{% static 'react/solution.js' %}"></script>
 {% endblock %}

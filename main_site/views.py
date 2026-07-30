@@ -188,3 +188,6 @@ def react_app(request):
 
 def indicators_view(request):
     return render(request, "indicators.html")
+
+def solution_view(request):
+    return render(request, 'solution.html')

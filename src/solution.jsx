@@ -1,8 +1,8 @@
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 
-import ArticlesPage from "./pages/ArticlePage";
+import SolutionPage from "./pages/ArticlePage";
 
 createRoot(document.getElementById("root")).render(
-  createElement(ArticlesPage)
+  createElement(SolutionPage)
 );

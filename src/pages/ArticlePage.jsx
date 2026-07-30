@@ -198,7 +198,7 @@ function ViewerPanel({ article, onClose }) {
   );
 }
 
-export default function ArticlesDashboard() {
+export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -274,15 +274,37 @@ export default function ArticlesDashboard() {
             className="transition-all duration-300 ease-in-out"
             style={{ width: isSplit ? 360 : "100%", flexShrink: 0 }}
           >
-            <div className="relative mb-4">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: FAINT }} />
+            <div style={{ position: "relative", width: "100%", marginBottom: 16 }}>
+              <Search style={{
+                position: "absolute",
+                color: FAINT,
+                left: 16,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 16,
+                height: 16,
+                pointerEvents: "none",
+                }} />
               <input
                 type="text"
                 placeholder="Search the library…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-128 rounded-lg border py-2.5 pl-11 pr-4 text-sm outline-none transition"
-                style={{ backgroundColor: CARD_BG, borderColor: HAIRLINE, color: INK }}
+                style={{
+                  width: "25%",
+                  borderRadius: 8,
+                  border: `1px solid ${HAIRLINE}`,
+                  backgroundColor: CARD_BG,
+                  borderColor: HAIRLINE,
+                  color: INK,
+                  fontSize: 14,
+                  outline: "none",
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  paddingLeft: 44,
+                  paddingRight: 16,
+                  transition: "border-color 150ms ease",
+                }}
               />
             </div>
 
@@ -323,7 +345,7 @@ export default function ArticlesDashboard() {
                     style={{ borderColor: HAIRLINE, color: FAINT }}
                   >
                     <span style={{ width: "3rem", flexShrink: 0 }}>Ref.</span>
-                    <span style={{ flex: 1, minWidth: 0 }}>Subject</span>
+                    <span style={{ width:"24rem", flexShrink: 0 }}>Subject</span>
                     <span style={{ width: "9rem", flexShrink: 0 }}>Category</span>
                     <span style={{ width: "9rem", flexShrink: 0 }}>Author</span>
                     <span style={{ width: "7rem", flexShrink: 0 }}>Filed</span>
@@ -356,7 +378,7 @@ export default function ArticlesDashboard() {
                       </span>
 
                       {/* CLICKABLE SUBJECT ONLY - Explicit Pointer Hand */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ width: isSplit ? "100%" : "24rem", flexShrink: 0 }}>
                         <button
                           type="button"
                           onClick={() => setPreviewArticle(article)}
@@ -409,24 +431,61 @@ export default function ArticlesDashboard() {
                 })}
 
                 {filtered.length > 0 && (
-                  <div className="mt-4 flex items-center justify-between">
+                  <div style={{width: isSplit ? "100%" : "60rem", display:"flex",alignItems:"center",justifyContent: "space-between",marginTop: 16,}}>
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page <= 1}
-                      className="flex items-center gap-1 rounded-md border px-3 py-1.5 text-[12px] font-semibold transition disabled:opacity-30"
-                      style={{ borderColor: HAIRLINE, color: MUTED }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        borderRadius: 6,
+                        border: `1px solid ${HAIRLINE}`,
+                        padding: "6px 12px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: MUTED,
+                        opacity: page <= 1 ? 0.3 : 1,
+                        transition: "opacity 150ms ease",
+                      }}
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Prev
                     </button>
-                    <span className="text-[12px]" style={{ color: FAINT }}>
+
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        borderRadius: 6,
+                        border: `1px solid ${HAIRLINE}`,
+                        padding: "6px 12px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: MUTED,
+                        opacity: page >= totalPages ? 0.3 : 1,
+                        transition: "opacity 150ms ease",
+                    }}>
                       Page {page} of {totalPages}
                     </span>
+
                     <button
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                       disabled={page >= totalPages}
-                      className="flex items-center gap-1 rounded-md border px-3 py-1.5 text-[12px] font-semibold transition disabled:opacity-30"
-                      style={{ borderColor: HAIRLINE, color: MUTED }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        borderRadius: 6,
+                        border: `1px solid ${HAIRLINE}`,
+                        padding: "6px 12px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: MUTED,
+                        opacity: page >= totalPages ? 0.3 : 1,
+                        transition: "opacity 150ms ease",
+                      }}
                     >
                       Next
                       <ChevronRight className="h-3.5 w-3.5" />

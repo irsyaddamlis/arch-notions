@@ -13,6 +13,7 @@ export default defineConfig({
         main: 'src/main.jsx',
         indicators: 'src/indicators.jsx',
         articles: 'src/articles.jsx',
+        solution:'src/solution.jsx'
       },
       output: {
         // '[name].js' means the key above becomes the filename directly -
