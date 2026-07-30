@@ -250,7 +250,7 @@ export default function ArticlesPage() {
     <div className="relative min-h-screen px-15 py-20" style={{ backgroundColor: "#07090e", color: INK }}>
       <StarBackground />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className="relative z-10 mx-auto max-w-6xl">
         <div className="flex items-start justify-between mb-10">
           <header>
             <ArchNotionsLogo className="mb-1 w-128"/>
@@ -333,7 +333,7 @@ export default function ArticlesPage() {
               <div>
                 {!isSplit && (
                   <div
-                    className="flex gap-4 border-b pb-2 text-[10px] font-semibold tracking-[0.12em]"
+                    className="flex gap-4 pb-2 text-[12px] font-semibold tracking-[0.12em]"
                     style={{ borderColor: HAIRLINE, color: FAINT }}
                   >
                     <span style={{ width: "3rem", flexShrink: 0 }}>Ref.</span>
@@ -358,7 +358,7 @@ export default function ArticlesPage() {
                   return (
                     <div
                       key={article.id}
-                      className="flex items-center gap-4 border-b py-4 transition-colors"
+                      className="flex items-center gap-4 py-4 transition-colors"
                       style={{
                         borderColor: HAIRLINE,
                         backgroundColor: isActive ? "rgba(201,162,39,0.08)" : "transparent",
