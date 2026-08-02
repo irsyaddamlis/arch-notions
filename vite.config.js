@@ -3,6 +3,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+  proxy: {
+    '/static': 'http://localhost:8000'
+    }
+  },
   build: {
     outDir: 'main_site/static/react',
     rollupOptions: {

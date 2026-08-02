@@ -250,11 +250,11 @@ export default function ArticlesPage() {
     <div className="relative min-h-screen px-15 py-20" style={{ backgroundColor: "#07090e", color: INK }}>
       <StarBackground />
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10">
         <div className="flex items-start justify-between mb-10">
           <header>
             <ArchNotionsLogo className="mb-1 w-128"/>
-            <h1 className="text-2xl sm:text-2xl font-semibold tracking-tight" style={{ color: "#fff" }}>
+            <h1 className="text-1xl sm:text-2xl font-semibold tracking-tight" style={{ color: "#fff" }}>
               Insight &amp; Knowledge
             </h1>
           </header>
