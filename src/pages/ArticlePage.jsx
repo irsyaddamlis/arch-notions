@@ -71,7 +71,7 @@ function CategoryChip({ label }) {
   if (!label) return null;
   return (
     <span
-      className="inline-block whitespace-nowrap rounded-md border px-2 py-1 text-[10px] font-semibold tracking-[0.1em]"
+      className="inline-block whitespace-nowrap rounded-md px-2 py-1 text-[12px] font-semibold tracking-[0.1em]"
       style={{ borderColor: HAIRLINE, color: MUTED }}
     >
       {formatCategoryLabel(label)}
@@ -146,7 +146,7 @@ function ViewerPanel({ article, onClose }) {
         <button onClick={onClose} className="shrink-0 rounded-md p-1.5 transition hover:bg-white/10" style={{ color: MUTED }}>
           <X className="h-5 w-5" />
         </button>
-      </div>
+      </div>  
 
       <div className="flex flex-1 flex-col items-center justify-center overflow-auto p-4" style={{ backgroundColor: "#050709" }}>
         {loadState === "loading" && (
@@ -400,15 +400,15 @@ export default function ArticlesPage() {
                       </div>
                       {!isSplit && (
                         <>
-                          <span style={{ width: "9rem", flexShrink: 0 }}>
-                            <CategoryChip label={article.category_display || article.category} />
+                          <span style={{ width: "9rem", flexShrink: 0, color: MUTED, minWidth: 0 }}>
+                            {article.category_display || article.category}
                           </span>
                           <span
                             className="flex items-center gap-1.5 text-[13px]"
                             style={{ width: "9rem", flexShrink: 0, color: MUTED, minWidth: 0 }}
                           >
                             {article.creator}
-                            </span>
+                          </span>
                           <span className="text-[13px]" style={{ width: "7rem", flexShrink: 0, color: MUTED }}>
                             {formatShortDate(article.date)}
                           </span>
@@ -439,6 +439,7 @@ export default function ArticlesPage() {
                         color: MUTED,
                         opacity: page <= 1 ? 0.3 : 1,
                         transition: "opacity 150ms ease",
+                        cursor: "pointer",
                       }}
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
@@ -477,6 +478,7 @@ export default function ArticlesPage() {
                         color: MUTED,
                         opacity: page >= totalPages ? 0.3 : 1,
                         transition: "opacity 150ms ease",
+                        cursor: "pointer",
                       }}
                     >
                       Next
