@@ -51,18 +51,27 @@ export default function IndicatorsDashboard() {
   }, []);
 
   return (
-    <div className="relative min-h-screen px-15 py-20 text-white">
+    <div
+      className="relative min-h-screen text-white"
+      style={{
+        paddingLeft: "clamp(1rem, 6vw, 3.75rem)",
+        paddingRight: "clamp(1rem, 6vw, 3.75rem)",
+        paddingTop: "clamp(2rem, 6vw, 5rem)",
+        paddingBottom: "clamp(2rem, 6vw, 5rem)",
+      }}
+    >
       {/* 1. Canvas layer (fixed at zIndex 0) */}
       <StarBackground />
 
       {/* 2. Content layer forced ABOVE canvas (relative z-10) */}
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-10">
-          <header className="mb-10">
+        {/* Header: stacks on mobile, side-by-side from sm up */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8 sm:mb-10">
+          <header>
             <a href="/" className="inline-block">
-              <ArchNotionsLogo className="mb-1 w-128" />
+              <ArchNotionsLogo className="mb-1 w-40 sm:w-56 md:w-72 lg:w-96" />
             </a>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-xl sm:text-2xl font-bold text-white">
               Indonesia's Economic Outlook
             </h1>
           </header>
@@ -75,7 +84,7 @@ export default function IndicatorsDashboard() {
           </div>
         )}
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8 sm:mb-10">
           <StatCard
             variant="highlight"
             label="Indonesia's Debt"
@@ -102,14 +111,17 @@ export default function IndicatorsDashboard() {
         <section className="grid grid-cols-1 lg:grid-cols-[2fr_auto_1fr] gap-3 items-start">
           <TrendChart data={trend} />
 
-          <div className="flex flex-col gap-3 p-5">
+          <div className="flex flex-col gap-3 p-3 sm:p-5">
             <CurrencyList data={indicators} />
           </div>
 
-          <div className="flex items-center justify-center gap-3">
+          {/* IHSG badge + rate badges: side-by-side on larger screens,
+              stacked on mobile so the badge doesn't get squeezed next to
+              a 2x2 grid in a narrow flex row */}
+          <div className="flex flex-col sm:flex-row lg:flex-col items-center justify-center gap-3 p-3 sm:p-5">
             <IhsgBadge value={indicators.ihsg ?? "\u2014"} />
 
-            <div className="grid grid-cols-2 gap-x-6 gap-y-6 p-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-6 sm:gap-y-6">
               <RateBadge label="SBI Rate" value={indicators.bi_rate ?? "\u2014"} />
               <RateBadge label="Save Deposit" value={indicators.deposit_rate ?? "\u2014"} />
               <RateBadge label="Productive Loan" value={indicators.lending_rate ?? "\u2014"} />

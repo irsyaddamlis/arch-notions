@@ -7,10 +7,11 @@
 <section id="profile" class="content-page">
     <header class="hero-header">
         <div class="brand">
-            <img src="{% static 'arch-notions-logo.png' %}">
-            
+            <img src="{% static 'arch-notions-logo.png' %}" alt="Arch-notions logo">
+
             <p class="brand-tagline">
                 A consulting firm powered by data, science, &amp; strategic insights
+            </p>
         </div>
 
         <nav class="main-nav">
@@ -41,13 +42,13 @@
         <article class="profile-body">
             <header class="founder-section reveal">
                 <div class="circle-container reveal">
-                    <img src="{% static 'irsyad.png' %}">
+                    <img src="{% static 'irsyad.png' %}" alt="Photo of Irsyad Damlis, founder">
                 </div>
                 <p>The Founder</p>
                 <h1 class="founder">Irsyad Damlis</h1>
             </header>
 
-            <p class="bio reveal mb-4" >
+            <p class="bio reveal mb-4">
                 With over {{ years }} years of experience in project management, digital transformation,
                 strategy analytics, business development, and operational excellence,
                 we specialize in bridging the gap between complex data and actionable business growth.
@@ -71,7 +72,7 @@
     </section>
 
     <hr class="services-divider reveal">
-    
+
     <section>
         <article class="services-body">
 
@@ -81,7 +82,7 @@
                     <h2 class="services-section-title core">Specialized</h2>
                     <p class="services-section-sub">What we do best</p>
                 </div>
-                
+
                 <div class="split-right">
                     <div class="services-grid">
                         {% for profile in core_services %}
@@ -103,7 +104,7 @@
                     <h2 class="services-section-title other">Additional</h2>
                     <p class="services-section-sub">Robust capabilities</p>
                 </div>
-                
+
                 <div class="split-right">
                     <div class="services-grid">
                         {% for profile in other_services %}
@@ -151,9 +152,16 @@
     gap: 1.5rem;
 }
 
-/* Responsive adjustment for small mobile screens */
+/* --- Mobile-specific layout for elements defined in THIS template --- */
+/* Note: .hero-header, .brand, .main-nav, .stats-row, .stat-card,
+   .founder-section, and .circle-container are styled outside this file
+   (base.html or an external stylesheet). These rules are scoped and
+   conservative so they layer on top without fighting existing styles,
+   but if base styles already handle mobile for these, you may want to
+   consolidate rather than have two sources of truth. */
+
 @media (max-width: 768px) {
-    
+
     /* 1. Adjust Split Rows for Mobile */
     .split-row {
         flex-direction: column; /* Stack left column on top of right column */
@@ -162,11 +170,60 @@
     }
 
     .split-left {
-        max-width: 100%;        
+        max-width: 100%;
         flex: 0 1 auto;        /* Allow titles to span the full width */
     }
     .split-right {
-    flex: 0 1 auto;
+        flex: 0 1 auto;
+    }
+
+    /* 2. Header: stack the brand block above the nav instead of
+       side-by-side, and let the nav's links wrap instead of overflowing */
+    .hero-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .main-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        gap: 0rem;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .main-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .main-nav .btn,
+    .main-nav .page {
+        font-size: 0.78rem;
+        padding-left: 0.7rem !important;
+        padding-right: 0.7rem !important;
+        letter-spacing: 0em;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+
+    /* 3. Stats row: stack the three stat cards instead of squeezing
+       them into one narrow row */
+    .stats-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    /* 4. Founder section: keep the circular photo modestly sized so it
+       doesn't dominate a phone screen */
+    .circle-container img {
+        max-width: auto;
+        height: auto;
+        margin-left: 20px;
+        margin-top: 20px;
     }
 }
 </style>

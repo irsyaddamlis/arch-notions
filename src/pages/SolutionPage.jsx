@@ -43,16 +43,25 @@ const solutionsConfig = {
 
 export default function SolutionPage() {
   return (
-    <div className="relative min-h-screen px-[3.75rem] py-20 text-white">
+    <div
+      className="relative min-h-screen text-white"
+      style={{
+        paddingLeft: "clamp(1rem, 6vw, 3.75rem)",
+        paddingRight: "clamp(1rem, 6vw, 3.75rem)",
+        paddingTop: "clamp(2rem, 6vw, 5rem)",
+        paddingBottom: "clamp(2rem, 6vw, 5rem)",
+      }}
+    >
       <StarBackground />
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-10">
-          <header className="mb-10">
+        {/* Header: stacks on mobile, side-by-side from sm up */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8 sm:mb-10">
+          <header>
             <a className="inline-block">
-              <ArchNotionsLogo className="mb-1 w-128" />
+              <ArchNotionsLogo className="mb-1 w-40 sm:w-56 md:w-72 lg:w-96" />
             </a>
             <h1
-              className="font-bold text-2xl md:text-1xl lg:text-1xl"
+              className="font-bold text-xl sm:text-2xl"
               style={{ color: INK }}
             >
               Establish, Growth, &amp; Sustain with Us
@@ -63,7 +72,7 @@ export default function SolutionPage() {
 
         <div className="relative z-20 w-full max-w-5xl mx-auto">
           <h2
-            className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl"
+            className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl"
             style={{ color: INK }}
           >
             {solutionsConfig.title}
@@ -76,7 +85,7 @@ export default function SolutionPage() {
           </p>
         </div>
 
-        <div className="z-50 grid items-stretch w-full max-w-5xl mx-auto grid-cols-1 my-8 gap-7 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="z-50 grid items-stretch w-full max-w-5xl mx-auto grid-cols-1 my-8 gap-5 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {solutionsConfig.items.length === 0 ? (
             <p style={{ color: FAINT }}>{solutionsConfig.noSolutions}</p>
           ) : (
@@ -84,7 +93,7 @@ export default function SolutionPage() {
               <a
                 key={index}
                 href={project.href}
-                className="relative flex flex-col items-stretch duration-300 ease-out p-7 sm:p-3 group h-[25rem] rounded-2xl"
+                className="relative flex flex-col items-stretch duration-300 ease-out p-4 sm:p-3 group h-[22rem] sm:h-[25rem] rounded-2xl"
               >
                 <span
                   className="absolute inset-0 z-20 block w-full h-full duration-300 ease-out border border-dashed group-hover:-translate-x-1 group-hover:-translate-y-1 rounded-2xl transition-colors"
