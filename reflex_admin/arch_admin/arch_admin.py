@@ -48,6 +48,7 @@ class ManageUsersState(rx.State):
     status: str = ""
     status_color: str = "white"
     loading: bool = False
+    confirming_uid: int = 0
 
     def load_users(self):
         self.loading = True
@@ -93,8 +94,20 @@ class ManageUsersState(rx.State):
             self.status = f"Error: {ex}"
             self.status_color = STOP
 
-    def toggle_approval(self, uid: int):
-        self._do_action(uid, "toggle_approval")
+    def delete_user(self, uid: int):
+        self._do_action(uid, "delete_user")
+        yield
+        yield ManageUsersState.load_users
+
+    def ask_delete_user(self, uid: int):
+        self.confirming_uid = uid
+
+    def cancel_delete_user(self):
+        self.confirming_uid = 0
+
+    def confirm_delete_user(self, uid: int):
+        self._do_action(uid, "delete_user")
+        self.confirming_uid = 0
         yield
         yield ManageUsersState.load_users
 
@@ -135,7 +148,7 @@ class UploadState(rx.State):
     file_type: str = "PDF"
     title: str = ""
     category: str = "whitepaper"
-    creator: str = ""
+    creator_name: str = ""
     drive_link: str = ""
     status: str = ""
     status_color: str = "white"
@@ -152,8 +165,8 @@ class UploadState(rx.State):
         self.category = _CATEGORY_LABEL_TO_VALUE.get(label, self.category)
 
 
-    def update_creator(self, value: str):
-        self.creator = value
+    def update_creator_name(self, value: str):
+        self.creator_name = value
 
     def update_drive_link(self, value: str):
         self.drive_link = value
@@ -177,8 +190,8 @@ class UploadState(rx.State):
                     "date": self.date,
                     "title": self.title,
                     "category": self.category,
-                    "creator": self.creator,
                     "file_type": self.file_type,
+                    "creator_name": self.creator_name,
                     "drive_file_id": drive_id,
                 },
                 headers=AUTH_HEADERS,
@@ -205,7 +218,7 @@ class ArticleRow:
     title: str
     category: str
     category_display: str
-    creator: str
+    creator_name: str
 
 CATEGORY_OPTIONS = [
     ("financial_analytic", "Financial Analytic"),
@@ -233,7 +246,7 @@ class ArticlesState(rx.State):
     edit_date: str = ""
     edit_title: str = ""
     edit_category: str = "whitepaper"
-    edit_creator: str = ""
+    edit_creator_name: str = ""
     edit_status: str = ""
     edit_status_color: str = "white"
 
@@ -257,7 +270,7 @@ class ArticlesState(rx.State):
                     file_type=a.get("file_type", "-"),
                     category=a.get("category", "whitepaper"),
                     category_display=a.get("category_display", "-"),
-                    creator=a.get("creator", ""),                )
+                    creator_name=a.get("creator_name", ""),                )
                 for a in data
             ]
             self.status = f"Loaded {len(self.articles)} article(s)."
@@ -299,7 +312,7 @@ class ArticlesState(rx.State):
         self.edit_date = a.date
         self.edit_title = a.title
         self.edit_category = a.category
-        self.edit_creator = a.creator
+        self.edit_creator_name = a.creator_name
         self.edit_status = ""
  
     def cancel_edit(self):
@@ -315,8 +328,8 @@ class ArticlesState(rx.State):
     def update_edit_category(self, label: str):
         self.edit_category = _CATEGORY_LABEL_TO_VALUE.get(label, self.edit_category)
  
-    def update_edit_creator(self, value: str):
-        self.edit_creator = value
+    def update_edit_creator_name(self, value: str):
+        self.edit_creator_name = value
  
     def submit_edit(self):
         if not self.edit_title or not self.edit_date:
@@ -330,8 +343,8 @@ class ArticlesState(rx.State):
                     "article_id": self.editing_id,
                     "date": self.edit_date,
                     "title": self.edit_title,
+                    "creator_name": self.edit_creator_name,
                     "category": self.edit_category,
-                    "creator": self.edit_creator,
                 },
                 headers=AUTH_HEADERS,
                 timeout=30,
@@ -460,6 +473,7 @@ def _status_pill(text_content, is_positive) -> rx.Component:
 
 
 def _user_row(u: UserRow) -> rx.Component:
+    is_confirming = ManageUsersState.confirming_uid == u.id
     return rx.hstack(
         rx.text(u.username, width="200px", color=PAPER, weight="medium"),
         rx.text(u.email, width="240px", color=MUTED, class_name="data-mono", size="2"),
@@ -467,23 +481,43 @@ def _user_row(u: UserRow) -> rx.Component:
             _status_pill(rx.cond(u.is_approved, "Approved", "Pending"), u.is_approved),
             width="130px",
         ),
-        rx.button(
-            "Toggle Approval",
-            on_click=lambda: ManageUsersState.toggle_approval(u.id), # type: ignore
-            variant="outline",
-            color_scheme="gray",
-            size="2",
-        ),
         rx.box(
             _status_pill(rx.cond(u.can_download_all, "Can Download", "No Download"), u.can_download_all),
             width="150px",
         ),
         rx.button(
-            "Toggle Download",
+            "Can Download",
             on_click=lambda: ManageUsersState.toggle_download(u.id), # type: ignore
             variant="outline",
             color_scheme="gray",
             size="2",
+        ),
+        rx.cond(
+            is_confirming,
+            rx.hstack(
+                rx.text("Delete?", size="2", color=STOP),
+                rx.button(
+                    "Confirm",
+                    on_click=lambda: ManageUsersState.confirm_delete_user(u.id), # type: ignore
+                    style={"background": STOP, "color": PAPER},
+                    size="2",
+                ),
+                rx.button(
+                    "Cancel",
+                    on_click=ManageUsersState.cancel_delete_user, # type: ignore
+                    variant="outline",
+                    color_scheme="gray",
+                    size="2",
+                ),
+                spacing="2",
+            ),
+            rx.button(
+                "Delete User",
+                on_click=lambda: ManageUsersState.ask_delete_user(u.id), # type: ignore
+                variant="outline",
+                color_scheme="red",
+                size="2",
+            ),
         ),
         padding="14px",
         border=f"1px solid {LINE}",
@@ -543,8 +577,8 @@ def _article_row(a: ArticleRow) -> rx.Component:
             rx.hstack(
                 rx.text(a.category_display, size="1", class_name="eyebrow", color=BRASS),
                 rx.cond(
-                    a.creator != "",
-                    rx.text(f"By {a.creator}", size="1", color=MUTED),
+                    a.creator_name != "",
+                    rx.text(f"By {a.creator_name}", size="1", color=MUTED),
                 ),
                 spacing="3",
             ),
@@ -628,9 +662,9 @@ def _article_row(a: ArticleRow) -> rx.Component:
         ),
         rx.hstack(
             rx.input(
-                value=ArticlesState.edit_creator,
+                value=ArticlesState.edit_creator_name,
                 placeholder="Creator / Author",
-                on_change=ArticlesState.update_edit_creator, # type: ignore
+                on_change=ArticlesState.update_edit_creator_name, # type: ignore
                 width="260px",
                 style={"borderColor": LINE, "color": PAPER, "background": INK},
             ),
@@ -738,7 +772,7 @@ def upload_article_page() -> rx.Component:
                 rx.text("Creator / Author", size="1", color=MUTED, class_name="eyebrow"),
                 rx.input(
                     placeholder="e.g. Irsyad Damlis",
-                    on_change=UploadState.update_creator, # type: ignore
+                    on_change=UploadState.update_creator_name, # type: ignore
                     width="100%",
                     style=input_style,
                 ),

@@ -4,15 +4,15 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from io import BytesIO
 
-import pandas as pd
-import pdfplumber
-import pytesseract
-import requests
-import yfinance as yf
-from babel.dates import format_date
-from bs4 import BeautifulSoup
-from dbnomics import fetch_series
-from pdf2image import convert_from_bytes
+import pandas as pd  # type: ignore
+import pdfplumber  # type: ignore
+import pytesseract  # type: ignore
+import requests  # type: ignore
+import yfinance as yf  # type: ignore
+from babel.dates import format_date  # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
+from dbnomics import fetch_series  # type: ignore
+from pdf2image import convert_from_bytes  # type: ignore
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 

@@ -11,7 +11,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'date', 'file_type', 'is_downloadable')
+    list_display = ('title', 'date', 'file_type', 'category', 'creator_name')
     # This creates a much better UI for selecting multiple users
     filter_horizontal = ('allowed_view_users', 'allowed_download_users')
     search_fields = ('title',)

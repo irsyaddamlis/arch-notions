@@ -69,11 +69,10 @@ def _user_can_view_article(request, article) -> bool:
     if request.user.is_superuser:
         return True
     profile = getattr(request.user, 'userprofile', None)
-    if not profile or not profile.is_approved:
-        return False
-    if profile.can_view_all:
+    if profile and profile.can_view_all:
         return True
     return article.allowed_view_users.filter(pk=request.user.pk).exists()
+
 
 
 @login_required(login_url='/login')
@@ -99,7 +98,7 @@ def article_file(request, article_id):
             fileId=article.drive_file_id,
             fields="name,mimeType",
         ).execute()
-        filename = meta.get("name") or f"article-{article.id}"
+        filename = meta.get("name") or f"article-{article.id}" #type: ignore
         mime_type = meta.get("mimeType") or "application/octet-stream"
 
         fh = connector.download_file_as_bytes(article.drive_file_id)
@@ -166,14 +165,12 @@ def upload_article(request):
         date = request.POST['date']
         file_type = request.POST['file_type']
         drive_file_id = request.POST['drive_file_id']
-        is_downloadable = 'is_downloadable' in request.POST
 
         Article.objects.create(
             title=title,
             date=date,
             file_type=file_type,
             drive_file_id=drive_file_id,
-            is_downloadable=is_downloadable,
         )
         return redirect('articles')
 

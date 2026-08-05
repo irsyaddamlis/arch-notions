@@ -144,24 +144,6 @@ def articles(request):
             category_name = ''
 
         # ----------------------------------------------------
-        # Download permission
-        # ----------------------------------------------------
-
-        if request.user.is_superuser:
-
-            is_downloadable = True
-
-        else:
-
-            is_downloadable = (
-
-                article.is_downloadable
-
-                or profile.can_download_all #type: ignore
-
-            )
-
-        # ----------------------------------------------------
         # Article payload
         # ----------------------------------------------------
 
@@ -179,7 +161,7 @@ def articles(request):
 
             'category_display': category_name,
 
-            'creator': article.creator,
+            'creator': article.creator_name,
 
             'file_type': article.file_type,
 
@@ -192,11 +174,16 @@ def articles(request):
 
             ),
 
-            'is_downloadable': (
-                is_downloadable
-            ),
-
         })
+
+    # --------------------------------------------------------
+    # Download permission (computed once for the whole list)
+    # --------------------------------------------------------
+
+    if request.user.is_superuser:
+        can_download = True
+    else:
+        can_download = profile.can_download_all if profile else False
 
     # ========================================================
     # CATEGORY LIST
@@ -231,6 +218,8 @@ def articles(request):
         'results': items,
 
         'categories': db_categories,
+
+        'can_download': can_download,
 
     })
 
@@ -370,34 +359,6 @@ def manage_users_action(request):
     )
 
     # --------------------------------------------------------
-    # Toggle approval
-    # --------------------------------------------------------
-
-    if action == 'toggle_approval':
-
-        profile.is_approved = (
-
-            not profile.is_approved
-
-        )
-
-        profile.can_view_all = (
-
-            profile.is_approved
-
-        )
-
-        if not profile.is_approved:
-
-            profile.can_download_all = False
-
-        profile.save()
-
-        return Response({
-            'ok': True
-        })
-
-    # --------------------------------------------------------
     # Toggle download permission
     # --------------------------------------------------------
 
@@ -427,13 +388,19 @@ def manage_users_action(request):
             'ok': True
         })
 
+    # --------------------------------------------------------
+    # Delete User
+    # --------------------------------------------------------
+    elif action == 'delete_user':
+        target_user.delete()
+        return Response({'ok': True, 'detail': 'User deleted successfully'})
+
     return Response(
         {
             'detail': 'Invalid action'
         },
         status=status.HTTP_400_BAD_REQUEST
     )
-
 
 # ============================================================
 # HELPER: GET CATEGORY
@@ -519,28 +486,6 @@ def upload_article(request):
         )
 
     # --------------------------------------------------------
-    # Download permission
-    # --------------------------------------------------------
-
-    raw_downloadable = request.data.get(
-        'is_downloadable'
-    )
-
-    is_downloadable = (
-
-        raw_downloadable
-
-        in [
-            'true',
-            'True',
-            True,
-            1,
-            '1',
-        ]
-
-    )
-
-    # --------------------------------------------------------
     # Google Drive file ID
     # --------------------------------------------------------
 
@@ -593,8 +538,8 @@ def upload_article(request):
     # Other fields
     # --------------------------------------------------------
 
-    creator = request.data.get(
-        'creator',
+    creator_name = request.data.get(
+        'creator_name',
         ''
     )
 
@@ -610,14 +555,11 @@ def upload_article(request):
 
         category=category,
 
-        creator=creator,
+        creator_name=creator_name,
 
         file_type=file_type,
 
         drive_file_id=drive_file_id,
-
-        is_downloadable=is_downloadable,
-
     )
 
     return Response({
@@ -742,51 +684,22 @@ def edit_article(request):
 
     article.category = category
 
-    article.creator = request.data.get(
+    article.creator_name = request.data.get(
 
-        'creator',
+        'creator_name',
 
-        article.creator
-
+        article.creator_name
     )
-
-    # --------------------------------------------------------
-    # is_downloadable
-    # --------------------------------------------------------
-
-    if 'is_downloadable' in request.data:
-
-        raw_downloadable = request.data.get(
-
-            'is_downloadable'
-
-        )
-
-        article.is_downloadable = (
-
-            raw_downloadable
-
-            in [
-                'true',
-                'True',
-                True,
-                1,
-                '1',
-            ]
-
-        )
 
     article.save()
 
-    return Response({
-
-        'ok': True,
-
-        'message': (
-            'Article updated successfully'
-        )
-
-    })
+    return Response(
+        {
+            'detail': 'Article updated successfully',
+            'article_id': article.id, #type: ignore
+        },
+        status=status.HTTP_200_OK
+    )
 
 
 # ============================================================
@@ -834,11 +747,11 @@ def delete_article(request):
     # Delete local file if present
     # --------------------------------------------------------
 
-    if article.file:
+    #if article.file:
 
-        article.file.delete(
-            save=False
-        )
+    #    article.file.delete(
+    #        save=False
+    #    )
 
     # --------------------------------------------------------
     # Delete database record

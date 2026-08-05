@@ -6,8 +6,8 @@ from django.dispatch import receiver
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_approved = models.BooleanField(default=False)
-    can_view_all = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True)
+    can_view_all = models.BooleanField(default=True)
     can_download_all = models.BooleanField(default=False)
 
     def __str__(self):
@@ -62,17 +62,17 @@ class Article(models.Model):
     title = models.CharField(max_length=200)
     # Legacy local-storage field. Kept (nullable) so existing rows still
     # resolve; new articles are linked via drive_file_id instead.
-    file = models.FileField(upload_to='articles/', blank=True, null=True)
-    is_downloadable = models.BooleanField(default=False)
+    #file = models.FileField(upload_to='articles/', blank=True, null=True)
+    #is_downloadable = models.BooleanField(default=False)
     file_type = models.CharField(max_length=10)
     drive_file_id = models.CharField(max_length=100, blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='articles'
     )
-    creator = models.CharField(
-        max_length=100, blank=True,
-        help_text="Free-text author/analyst name shown as the byline.",
-    )
+    #creator = models.CharField(
+    #    max_length=100, blank=True,
+    #    help_text="Free-text author/analyst name shown as the byline.",
+    #)
     # Free-text byline; optional, not tied to a login account.
     creator_name = models.CharField(max_length=150, blank=True)
     allowed_view_users = models.ManyToManyField(

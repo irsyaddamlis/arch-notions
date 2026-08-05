@@ -67,7 +67,7 @@ function ClearanceMark({ downloadable, compact = false }) {
   );
 }
 
-function ViewerPanel({ article, onClose, onBack }) {
+function ViewerPanel({ article, onClose, onBack, canDownload }) {
   const canvasRef = useRef(null);
   const pdfDocRef = useRef(null);
   const [pageNum, setPageNum] = useState(1);
@@ -183,7 +183,7 @@ function ViewerPanel({ article, onClose, onBack }) {
           </button>
         </div>
 
-        {article.is_downloadable && (
+        {canDownload && (
           <a
             href={`${article.file_url}?download=1`}
             className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold"
@@ -206,6 +206,7 @@ export default function ArticlesPage() {
   const [status, setStatus] = useState("loading");
   const [previewArticle, setPreviewArticle] = useState(null);
   const [page, setPage] = useState(1);
+  const [canDownload, setCanDownload] = useState(false);
 
   const fetchArticles = () => {
     setStatus("loading");
@@ -219,6 +220,7 @@ export default function ArticlesPage() {
         if (!data) return;
         setArticles(data.results || []);
         setCategories(data.categories || []);
+        setCanDownload(!!data.can_download);
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
@@ -400,7 +402,7 @@ export default function ArticlesPage() {
                             </span>
                           </button>
                           <div className="shrink-0">
-                            <ClearanceMark downloadable={article.is_downloadable} compact />
+                            <ClearanceMark downloadable={canDownload} compact />
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pl-[1.9rem] text-[12px] md:hidden" style={{ color: MUTED }}>
@@ -462,7 +464,7 @@ export default function ArticlesPage() {
                         )}
 
                         <div className="hidden md:flex" style={{ width: isSplit ? "auto" : "8rem", flexShrink: 0, justifyContent: "flex-end" }}>
-                          <ClearanceMark downloadable={article.is_downloadable} compact={isSplit} />
+                          <ClearanceMark downloadable={canDownload} compact={isSplit} />
                         </div>
                       </div>
                     );
@@ -522,6 +524,7 @@ export default function ArticlesPage() {
                 article={previewArticle}
                 onClose={() => setPreviewArticle(null)}
                 onBack={() => setPreviewArticle(null)}
+                canDownload={canDownload}
               />
             </div>
           )}
