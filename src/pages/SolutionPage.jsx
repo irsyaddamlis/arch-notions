@@ -13,26 +13,24 @@ const HAIRLINE = "rgba(255,255,255,0.08)";
 const solutionsConfig = {
   title: "Our Solutions",
   description:
-    "Here you can showcase your best work. Each project should include a brief description, the technologies used, and any notable achievements. This helps potential clients or employers understand your capabilities.",
-  backButton: "Back to Home",
-  noSolutions: "No solutions found.",
+    "Drive end-to-end business optimization and operating model design, leveraging data analytics and change management to execute sustainable people and organizational transformations",
   items: [
     {
-      title: "Solution One",
+      title: "Business Optimization",
       description:
         "A brief description of your first project. Explain what it does and what technologies you used.",
       href: "#!",
       imageUrl: "/static/building-business.jpg",
     },
     {
-      title: "Solution Two",
+      title: "Operating Model Design",
       description:
         "Describe your second project here. Highlight the key features and your role in development.",
       href: "#!",
       imageUrl: "/static/project6.png",
     },
     {
-      title: "Solution Three",
+      title: "People & Transformation",
       description:
         "Share details about your third project. What problems did it solve? What was the outcome?",
       href: "#!",

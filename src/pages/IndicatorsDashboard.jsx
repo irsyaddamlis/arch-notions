@@ -111,7 +111,7 @@ export default function IndicatorsDashboard() {
         <section className="grid grid-cols-1 lg:grid-cols-[2fr_auto_1fr] gap-3 items-start">
           <TrendChart data={trend} />
 
-          <div className="flex flex-col gap-3 p-3 sm:p-5">
+          <div className="flex flex-col gap-3 p-5 sm:p-5">
             <CurrencyList data={indicators} />
           </div>
 
@@ -121,7 +121,7 @@ export default function IndicatorsDashboard() {
           <div className="flex flex-col sm:flex-row lg:flex-col items-center justify-center gap-3 p-3 sm:p-5">
             <IhsgBadge value={indicators.ihsg ?? "\u2014"} />
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-6 sm:gap-y-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-6">
               <RateBadge label="SBI Rate" value={indicators.bi_rate ?? "\u2014"} />
               <RateBadge label="Save Deposit" value={indicators.deposit_rate ?? "\u2014"} />
               <RateBadge label="Productive Loan" value={indicators.lending_rate ?? "\u2014"} />
