@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Download, FileText, Search, ShieldCheck, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FileText, Maximize2, Minimize2, Search, ShieldCheck, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import ArchNotionsLogo from "../components/dashboard/ArchNotionsLogo";
@@ -73,12 +73,18 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
   const [pageNum, setPageNum] = useState(1);
   const [pageCount, setPageCount] = useState(0);
   const [loadState, setLoadState] = useState("loading");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Render at a higher scale in fullscreen since the canvas has much more
+  // room to breathe - same document, same permissions, just sharper.
+  const renderScale = isFullscreen ? 2.1 : 1.3;
 
   useEffect(() => {
     if (!article) return;
     let cancelled = false;
     setLoadState("loading");
     setPageNum(1);
+    setIsFullscreen(false);
 
     import(/* @vite-ignore */ PDFJS_URL).then((pdfjsLib) => {
       if (cancelled) return;
@@ -89,19 +95,39 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
           pdfDocRef.current = pdf;
           setPageCount(pdf.numPages);
           setLoadState("ready");
-          renderPage(pdf, 1);
+          renderPage(pdf, 1, renderScale);
         })
         .catch(() => { if (!cancelled) setLoadState("error"); });
     }).catch(() => { if (!cancelled) setLoadState("error"); });
 
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article]);
 
-  function renderPage(pdf, num) {
+  // Re-render the current page at the right resolution whenever the
+  // fullscreen mode changes, so the switch always looks crisp.
+  useEffect(() => {
+    if (loadState !== "ready" || !pdfDocRef.current) return;
+    renderPage(pdfDocRef.current, pageNum, renderScale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFullscreen]);
+
+  // Escape exits fullscreen (without closing the document), matching
+  // familiar viewer/lightbox behavior.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    function handleKeyDown(e) {
+      if (e.key === "Escape") setIsFullscreen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
+
+  function renderPage(pdf, num, scale = renderScale) {
     pdf.getPage(num).then((page) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const viewport = page.getViewport({ scale: 1.3 });
+      const viewport = page.getViewport({ scale });
       canvas.height = viewport.height;
       canvas.width = viewport.width;
       page.render({ canvasContext: canvas.getContext("2d"), viewport });
@@ -113,28 +139,45 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
     if (!pdf) return;
     const clamped = Math.min(Math.max(next, 1), pdf.numPages);
     setPageNum(clamped);
-    renderPage(pdf, clamped);
+    renderPage(pdf, clamped, renderScale);
   }
 
   if (!article) return null;
 
   return (
     <div
-      className="flex h-full flex-col rounded-xl border"
-      style={{ backgroundColor: CARD_BG, borderColor: HAIRLINE }}
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-[100] flex flex-col p-3 sm:p-6"
+          : "flex h-full flex-col rounded-xl border"
+      }
+      style={
+        isFullscreen
+          ? { backgroundColor: "rgba(3,4,7,0.97)", backdropFilter: "blur(4px)" }
+          : { backgroundColor: CARD_BG, borderColor: HAIRLINE }
+      }
     >
-      <div className="flex items-start justify-between gap-4 border-b px-4 py-3 sm:px-5 sm:py-4" style={{ borderColor: HAIRLINE }}>
+      <div
+        className={
+          isFullscreen
+            ? "flex items-start justify-between gap-4 rounded-t-xl border px-4 py-3 sm:px-5 sm:py-4"
+            : "flex items-start justify-between gap-4 border-b px-4 py-3 sm:px-5 sm:py-4"
+        }
+        style={{ borderColor: HAIRLINE, backgroundColor: isFullscreen ? CARD_BG : "transparent" }}
+      >
         <div className="flex min-w-0 items-center gap-2">
           {/* Back button only shows on mobile - lets the user return to the list
               instead of the desktop-only side-by-side split view */}
-          <button
-            onClick={onBack}
-            className="md:hidden shrink-0 rounded-md p-1.5 transition hover:bg-white/10"
-            style={{ color: MUTED }}
-            aria-label="Back to list"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
+          {!isFullscreen && (
+            <button
+              onClick={onBack}
+              className="md:hidden shrink-0 rounded-md p-1.5 transition hover:bg-white/10"
+              style={{ color: MUTED }}
+              aria-label="Back to list"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
           <div className="min-w-0">
             <p className="truncate text-sm font-medium" style={{ color: INK }}>{article.title}</p>
             <p className="mt-0.5 text-[11px]" style={{ color: FAINT }}>
@@ -143,12 +186,31 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
             </p>
           </div>
         </div>
-        <button onClick={onClose} className="hidden md:block shrink-0 rounded-md p-1.5 transition hover:bg-white/10" style={{ color: MUTED }}>
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            onClick={() => setIsFullscreen((v) => !v)}
+            className="rounded-md p-1.5 transition hover:bg-white/10"
+            style={{ color: MUTED }}
+            aria-label={isFullscreen ? "Exit full screen" : "View full screen"}
+            title={isFullscreen ? "Exit full screen" : "View full screen"}
+          >
+            {isFullscreen ? <Minimize2 className="h-4.5 w-4.5" /> : <Maximize2 className="h-4.5 w-4.5" />}
+          </button>
+          <button
+            onClick={isFullscreen ? () => setIsFullscreen(false) : onClose}
+            className={isFullscreen ? "block shrink-0 rounded-md p-1.5 transition hover:bg-white/10" : "hidden md:block shrink-0 rounded-md p-1.5 transition hover:bg-white/10"}
+            style={{ color: MUTED }}
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center overflow-auto p-4" style={{ backgroundColor: "#050709" }}>
+      <div
+        className="flex flex-1 flex-col items-center justify-center overflow-auto p-4"
+        style={{ backgroundColor: "#050709", border: isFullscreen ? `1px solid ${HAIRLINE}` : "none", borderTop: "none", borderBottom: "none" }}
+      >
         {loadState === "loading" && (
           <p className="py-16 text-center text-sm" style={{ color: MUTED }}>Loading document…</p>
         )}
@@ -160,7 +222,10 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
         <canvas ref={canvasRef} className="block max-w-full" style={{ display: loadState === "ready" ? "block" : "none" }} />
       </div>
 
-      <div className="flex items-center justify-between gap-4 border-t px-4 py-3 sm:px-5" style={{ borderColor: HAIRLINE }}>
+      <div
+        className={isFullscreen ? "flex items-center justify-between gap-4 rounded-b-xl border px-4 py-3 sm:px-5" : "flex items-center justify-between gap-4 border-t px-4 py-3 sm:px-5"}
+        style={{ borderColor: HAIRLINE, backgroundColor: isFullscreen ? CARD_BG : "transparent" }}
+      >
         <div className="flex items-center gap-2">
           <button
             onClick={() => goToPage(pageNum - 1)}
@@ -183,6 +248,8 @@ function ViewerPanel({ article, onClose, onBack, canDownload }) {
           </button>
         </div>
 
+        {/* Download stays gated on the same canDownload permission in both
+            normal and full screen mode - full screen never bypasses it. */}
         {canDownload && (
           <a
             href={`${article.file_url}?download=1`}

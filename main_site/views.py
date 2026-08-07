@@ -103,10 +103,24 @@ def article_file(request, article_id):
 
         fh = connector.download_file_as_bytes(article.drive_file_id)
         file_bytes = fh.read()
-    except Exception:
+
+    except Exception as e:
         import traceback
-        traceback.print_exc()  # TEMP: prints the real error to the runserver console
-        return HttpResponse("Could not retrieve the file from Google Drive.", status=502)
+        traceback.print_exc()
+
+        return HttpResponse(
+            f"""
+    Google Drive Error
+
+    Type:
+    {type(e).__name__}
+
+    Message:
+    {e}
+    """,
+            status=502,
+            content_type="text/plain",
+        )
 
     response = HttpResponse(file_bytes, content_type=mime_type)
     disposition = "attachment" if request.GET.get("download") else "inline"
