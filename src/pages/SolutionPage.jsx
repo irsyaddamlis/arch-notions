@@ -16,25 +16,46 @@ const solutionsConfig = {
     "Drive end-to-end business optimization and operating model design, leveraging data analytics and change management to execute sustainable people and organizational transformations",
   items: [
     {
-      title: "Business Analytics & Intelligence",
+      title: "Business Intelligence",
       description:
-        "We transform your market, financial, and operational data into centralized, automated intelligence assets that provide complete decision clarity. By combining historical performance tracking with forward-looking predictive modeling, we empower leadership teams to mitigate risk, optimize unit economics, and drive sustainable growth.",
+        "Transforming raw operational data into predictable revenue pipelines and actionable sales funnels. By implementing advanced analytics and visualization tools, we enable organizations to identify growth opportunities, streamline processes, and make data-driven decisions that enhance overall business performance.",
+      href: "#!",
+      imageUrl: "/static/project4.jpg",
+    },
+    {
+      title: "Business Analytics",
+      description:
+        "Driving strategic growth through deep industry analysis, precise financial modeling, and predictive business optimization. We provide insights that inform decision-making, identify market trends, and optimize resource allocation, ensuring your business remains competitive and agile in a rapidly evolving landscape.",
+      href: "#!",
+      imageUrl: "/static/post1.jpg",
+    },
+    {
+      title: "Project Management",
+      description:
+        "Bridging the gap between vision and execution through rigorous end-to-end strategic oversight. From initial scoping and execution to risk mitigation and final delivery, we ensure your projects stay on schedule, within budget, and structured for measurable impact.",
       href: "#!",
       imageUrl: "/static/building-business.jpg",
     },
-    {
-      title: "Project Management & Transformation",
+        {
+      title: "People Development",
       description:
-        "We streamline complex strategic initiatives through rigorous, end-to-end project governance—from initial scoping and execution to risk mitigation and final delivery. Our disciplined oversight ensures your projects stay on schedule, within budget, and structured for measurable impact.",
-      href: "#!",
-      imageUrl: "/static/project6.png",
-    },
-    {
-      title: "People & Performance Optimization",
-      description:
-        "We optimize workforce productivity and organization-wide performance by combining data-driven talent insights with custom capability development. From skill gaps to strategic alignment, we ensure your workforce is structured and equipped to achieve key business targets.",
+        "Empowering workforce potential through targeted training and capability building. We design and deliver custom learning programs that enhance employee skills, foster leadership growth, and cultivate a culture of continuous improvement, ensuring your team is equipped to meet evolving business challenges.",
       href: "#!",
       imageUrl: "/static/project1.jpg",
+    },
+    {
+      title: "Performance Optimization",
+      description:
+        "Aligning high-level objectives with actionable KPI and OKR frameworks that drive measurable results. We analyze organizational performance, identify bottlenecks, and implement strategies that enhance efficiency, productivity, and overall business outcomes.",
+      href: "#!",
+      imageUrl: "/static/project3.png",
+    },
+    {
+      title: "Organization Transformation",
+      description:
+        "Navigating complex change management to build resilient, future-ready organizations. We guide leadership through structural redesign, cultural shifts, and process improvements, ensuring that transformations are sustainable and aligned with long-term strategic goals.",
+      href: "#!",
+      imageUrl: "/static/project6.png",
     },
   ],
 };
