@@ -233,13 +233,22 @@ CATEGORY_OPTIONS = [
     ("whitepaper", "Whitepaper")
 ]
 _CATEGORY_LABEL_TO_VALUE = {label: value for value, label in CATEGORY_OPTIONS}
+_CATEGORY_VALUE_TO_LABEL = {value: label for value, label in CATEGORY_OPTIONS}
+
+# Label shown in the filter dropdown for "no filter applied".
+ALL_CATEGORIES_LABEL = "All Categories"
 
 class ArticlesState(rx.State):
-    articles: list[ArticleRow] = []
+    # Full unfiltered dataset loaded from the API.
+    all_articles: list[ArticleRow] = []
     status: str = ""
     status_color: str = "white"
     loading: bool = False
     confirming_id: int = 0
+
+    # Search + filter controls
+    search_query: str = ""
+    filter_category: str = ""  # "" means no category filter (All Categories)
 
     # Edit form state
     editing_id: int = 0
@@ -249,6 +258,38 @@ class ArticlesState(rx.State):
     edit_creator_name: str = ""
     edit_status: str = ""
     edit_status_color: str = "white"
+
+    @rx.var(cache=True)
+    def articles(self) -> list[ArticleRow]:
+        """Filtered/searched view of all_articles, computed reactively."""
+        result = self.all_articles
+
+        if self.filter_category:
+            result = [a for a in result if a.category == self.filter_category]
+
+        if self.search_query.strip():
+            q = self.search_query.strip().lower()
+            result = [
+                a
+                for a in result
+                if q in a.title.lower()
+                or q in a.creator_name.lower()
+                or q in a.category_display.lower()
+            ]
+
+        return result
+
+    @rx.var(cache=True)
+    def result_count(self) -> int:
+        return len(self.articles)
+
+    @rx.var(cache=True)
+    def total_count(self) -> int:
+        return len(self.all_articles)
+
+    @rx.var(cache=True)
+    def filter_category_label(self) -> str:
+        return _CATEGORY_VALUE_TO_LABEL.get(self.filter_category, ALL_CATEGORIES_LABEL)
 
     def load_articles(self):
         self.loading = True
@@ -262,7 +303,7 @@ class ArticlesState(rx.State):
                 self.status_color = STOP
                 return
             data = r.json().get("results", [])
-            self.articles = [
+            self.all_articles = [
                 ArticleRow(
                     id=a.get("id"), # type: ignore
                     date=a.get("date", "-"),
@@ -273,13 +314,28 @@ class ArticlesState(rx.State):
                     creator_name=a.get("creator_name", ""),                )
                 for a in data
             ]
-            self.status = f"Loaded {len(self.articles)} article(s)."
+            self.status = f"Loaded {len(self.all_articles)} article(s)."
             self.status_color = GO
         except Exception as ex:
             self.status = f"Error: {ex}"
             self.status_color = STOP
         finally:
             self.loading = False
+
+    # ── Search / filter ──────────────────────────────────────────────────
+
+    def update_search(self, value: str):
+        self.search_query = value
+
+    def update_filter_category(self, label: str):
+        if label == ALL_CATEGORIES_LABEL:
+            self.filter_category = ""
+        else:
+            self.filter_category = _CATEGORY_LABEL_TO_VALUE.get(label, "")
+
+    def clear_filters(self):
+        self.search_query = ""
+        self.filter_category = ""
 
     def ask_delete(self, aid: int):
         self.confirming_id = aid
@@ -699,20 +755,82 @@ def _article_row(a: ArticleRow) -> rx.Component:
     return rx.cond(is_editing, edit_form, display_row)
 
 
+def _articles_toolbar() -> rx.Component:
+    """Search box + category filter + refresh, sitting above the article list."""
+    input_style = {
+        "background": PANEL,
+        "borderColor": LINE,
+        "color": PAPER,
+    }
+    return rx.vstack(
+        rx.hstack(
+            rx.input(
+                placeholder="Search by title, author, or category...",
+                value=ArticlesState.search_query,
+                on_change=ArticlesState.update_search, # type: ignore
+                width="320px",
+                style=input_style,
+            ),
+            rx.select(
+                [ALL_CATEGORIES_LABEL] + [label for _, label in CATEGORY_OPTIONS],
+                value=ArticlesState.filter_category_label,
+                on_change=ArticlesState.update_filter_category, # type: ignore
+                width="220px",
+            ),
+            rx.cond(
+                (ArticlesState.search_query != "") | (ArticlesState.filter_category != ""),
+                rx.button(
+                    "Clear",
+                    on_click=ArticlesState.clear_filters, # type: ignore
+                    variant="outline",
+                    color_scheme="gray",
+                    size="2",
+                ),
+            ),
+            rx.spacer(),
+            rx.button(
+                "Refresh",
+                on_click=ArticlesState.load_articles, # type: ignore
+                loading=ArticlesState.loading,
+                style={"background": BRASS, "color": INK},
+            ),
+            spacing="3",
+            width="100%",
+            align_items="center",
+        ),
+        rx.text(
+            f"Showing {ArticlesState.result_count} of {ArticlesState.total_count} article(s)",
+            size="1",
+            color=MUTED,
+            class_name="data-mono",
+        ),
+        spacing="2",
+        width="100%",
+        align_items="start",
+    )
+
+
 @rx.page(route="/manage-articles", on_load=ArticlesState.load_articles) # type: ignore
 def manage_articles_page() -> rx.Component:
     content = rx.vstack(
-        rx.button(
-            "Refresh",
-            on_click=ArticlesState.load_articles, # type: ignore
-            loading=ArticlesState.loading,
-            style={"background": BRASS, "color": INK},
-        ),
+        _articles_toolbar(),
         rx.text(ArticlesState.status, color=ArticlesState.status_color, class_name="data-mono", size="2"),
         rx.box(
             rx.scroll_area(
                 rx.vstack(
-                    rx.foreach(ArticlesState.articles, _article_row),
+                    rx.cond(
+                        ArticlesState.result_count > 0,
+                        rx.foreach(ArticlesState.articles, _article_row),
+                        rx.box(
+                            rx.text(
+                                "No articles match your search/filter.",
+                                color=MUTED,
+                                size="2",
+                                class_name="data-mono",
+                            ),
+                            padding="24px",
+                        ),
+                    ),
                     spacing="2",
                     width="100%",
                     min_width="900px",

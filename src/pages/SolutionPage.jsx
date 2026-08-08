@@ -16,23 +16,23 @@ const solutionsConfig = {
     "Drive end-to-end business optimization and operating model design, leveraging data analytics and change management to execute sustainable people and organizational transformations",
   items: [
     {
-      title: "Business Optimization",
+      title: "Business Analytics & Intelligence",
       description:
-        "A brief description of your first project. Explain what it does and what technologies you used.",
+        "We transform your market, financial, and operational data into centralized, automated intelligence assets that provide complete decision clarity. By combining historical performance tracking with forward-looking predictive modeling, we empower leadership teams to mitigate risk, optimize unit economics, and drive sustainable growth.",
       href: "#!",
       imageUrl: "/static/building-business.jpg",
     },
     {
-      title: "Operating Model Design",
+      title: "Project Management & Transformation",
       description:
-        "Describe your second project here. Highlight the key features and your role in development.",
+        "We streamline complex strategic initiatives through rigorous, end-to-end project governance—from initial scoping and execution to risk mitigation and final delivery. Our disciplined oversight ensures your projects stay on schedule, within budget, and structured for measurable impact.",
       href: "#!",
       imageUrl: "/static/project6.png",
     },
     {
-      title: "People & Transformation",
+      title: "People & Performance Optimization",
       description:
-        "Share details about your third project. What problems did it solve? What was the outcome?",
+        "We optimize workforce productivity and organization-wide performance by combining data-driven talent insights with custom capability development. From skill gaps to strategic alignment, we ensure your workforce is structured and equipped to achieve key business targets.",
       href: "#!",
       imageUrl: "/static/project1.jpg",
     },
@@ -68,7 +68,7 @@ export default function SolutionPage() {
           <NavBar current="Solution" />
         </div>
 
-        <div className="relative z-20 w-full max-w-5xl mx-auto">
+        <div className="relative z-20 w-full">
           <h2
             className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl"
             style={{ color: INK }}
@@ -83,7 +83,7 @@ export default function SolutionPage() {
           </p>
         </div>
 
-        <div className="z-50 grid items-stretch w-full max-w-5xl mx-auto grid-cols-1 my-8 gap-5 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="z-50 grid items-stretch w-full mx-auto grid-cols-1 my-8 gap-5 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {solutionsConfig.items.length === 0 ? (
             <p style={{ color: FAINT }}>{solutionsConfig.noSolutions}</p>
           ) : (
@@ -122,8 +122,6 @@ export default function SolutionPage() {
                       <svg
                         className="group-hover:translate-x-0 group-hover:translate-y-0 -rotate-45 translate-y-1 -translate-x-1 w-2.5 h-2.5 ml-1 transition-all ease-in-out duration-200 transform"
                         viewBox="0 0 13 15"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style={{ stroke: BRASS, fill: "none" }}
                       >
                         <g
                           strokeWidth="1"
@@ -148,7 +146,7 @@ export default function SolutionPage() {
                       </svg>
                     </span>
                     <span
-                      className="text-sm block truncate"
+                      className="text-sm block truncate-2-lines"
                       style={{ color: MUTED }}
                     >
                       {project.description}

@@ -1,8 +1,24 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from email_validator import EmailNotValidError, validate_email
 
+
+def validate_email_mx(value):
+    """
+    Checks if the email has valid syntax AND a deliverable MX domain.
+    """
+    try:
+        # check_deliverability=True verifies domain MX records
+        validate_email(value, check_deliverability=True)
+    except EmailNotValidError as e:
+        raise ValidationError("This email address domain is invalid or cannot receive emails.")
+
+class UserProfile(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True, validators=[validate_email_mx])
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

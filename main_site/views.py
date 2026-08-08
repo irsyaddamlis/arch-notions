@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from dns import resolver  # type: ignore
+from email_validator import EmailNotValidError, validate_email  # type: ignore
 
 from .models import Article, UserProfile
 
@@ -127,21 +129,49 @@ def article_file(request, article_id):
     response["Content-Disposition"] = f'{disposition}; filename="{filename}"'
     return response
 
+def check_email_domain(email: str) -> bool:
+    """Validates email syntax and performs MX record lookup."""
+    try:
+        validate_email(email, check_deliverability=True)
+        return True
+    except EmailNotValidError:
+        return False
+
+
 def register(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        password2 = request.POST['password2']
+        # Safely fetch values using .get() to prevent KeyError crashes
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        password2 = request.POST.get('password2', '').strip()
 
+        # 1. Check for empty fields
+        if not username or not email or not password or not password2:
+            messages.error(request, 'Please complete all fields in the form.')
+            return redirect('register')
+
+        # 2. Check password match
         if password != password2:
             messages.error(request, 'Passwords do not match')
             return redirect('register')
 
+        # 3. Check MX record (Exactly 8 spaces)
+        if not check_email_domain(email):
+            messages.error(request, 'This email address domain is invalid or cannot receive emails.')
+            return redirect('register')
+
+        # 4. Check duplicate username
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already taken')
             return redirect('register')
 
+        # 5. Check duplicate email
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already registered')
+            return redirect('register')
+
+        # 6. Create user
         user = User.objects.create_user(
             username=username,
             email=email,
